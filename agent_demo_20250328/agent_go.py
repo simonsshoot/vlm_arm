@@ -26,6 +26,32 @@ play_wav('asset/welcome.wav')
 
 message=[]
 message.append({"role":"system","content":AGENT_SYS_PROMPT})
+
+def read_order_from_file(file_path='temp/test_input.txt'):
+    '''
+    从文本文件读取指令
+    参数:
+        file_path: 文本文件路径
+    返回:
+        指令字符串
+    '''
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            order = f.read().strip()
+        print(f'从文件读取指令: {order}')
+        return order
+    except FileNotFoundError:
+        print(f'文件不存在: {file_path}，创建默认指令文件')
+        default_order = '先归零，再摇头，然后把绿色方块放在篮球上'
+        import os
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(default_order)
+        return default_order
+    except Exception as e:
+        print(f'读取文件失败: {e}')
+        return None
+
 def agent_play():
     '''
     主函数，语音控制机械臂智能体编排动作
@@ -37,19 +63,28 @@ def agent_play():
     # check_camera()
     
     # 输入指令
-    # 先回到原点，再把LED灯改为墨绿色，然后把绿色方块放在篮球上
-    start_record_ok = input('是否开启录音，输入数字录音指定时长，按k打字输入，按c输入默认指令\n')
-    if str.isnumeric(start_record_ok):
+    print('\n请选择输入方式：')
+    print('【默认】直接按Enter - 从txt文件读取 (temp/test_input.txt)')
+    print('【数字】输入秒数 - 录音并语音识别')
+    print('【k】键盘输入')
+    print('【c】测试指令')
+    start_record_ok = input('请选择: ').strip()
+    
+    if start_record_ok == '':
+        # 默认从txt文件读取
+        order = read_order_from_file('temp/test_input.txt')
+        if order is None:
+            raise NameError('从文件读取指令失败，退出')
+    elif str.isnumeric(start_record_ok):
         DURATION = int(start_record_ok)
         record(DURATION=DURATION)   # 录音
         order = speech_recognition() # 语音识别
     elif start_record_ok == 'k':
-        order = input('请输入指令')
+        order = input('请输入指令: ')
     elif start_record_ok == 'c':
         order = '先归零，再摇头，然后把绿色方块放在篮球上'
     else:
         print('无指令，退出')
-        # exit()
         raise NameError('无指令，退出')
     
     # 智能体Agent编排动作
