@@ -134,14 +134,19 @@ def main():
 
             elif choice == '10':
                 print('\n执行：吸泵测试')
-                print('正在打开吸泵...')
-                pump_on()
-                print('✅ 吸泵已打开')
-                time.sleep(3)
-                print('正在关闭吸泵...')
-                pump_off()
-                print('✅ 吸泵已关闭')
-                print('吸泵测试完成')
+                try:
+                    pump_on()
+                    time.sleep(5)
+                    pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, 
+                             XY_END=[100,220], HEIGHT_END=100, HEIGHT_SAFE=220)
+                    pump_off()
+                    print('✅ 测试完成')
+                except Exception as e:
+                    print(f'❌ 测试失败: {e}')
+                    try:
+                        pump_off()
+                    except:
+                        pass
 
                     
             elif choice == '0':

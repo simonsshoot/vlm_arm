@@ -192,11 +192,16 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
 
     # 开启吸泵
     pump_on()
+    time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
     
     # 吸泵向下吸取物体
     print('    吸泵向下吸取物体')
     mc.send_coords([XY_START[0], XY_START[1], HEIGHT_START, 0, 180, 90], 15, 0)
     time.sleep(4)
+    
+    # 额外等待，确保物体被牢固吸住
+    print('    确保物体吸附稳定...')
+    time.sleep(1.5)
 
     # 升起物体
     print('    升起物体')
