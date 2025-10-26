@@ -80,7 +80,34 @@ LED灯改变颜色，比如：llm_led('帮我把LED灯的颜色改为贝加尔�
 【我现在的指令是】
 '''
 
-def agent_plan(PROMPT='先回到原点，再把LED灯改为墨绿色，然后把绿色方块放在篮球上'):
+def agent_plan(message):
+    '''
+    智能体编排动作
+    参数:
+        message: 消息列表，包含system和user消息
+    返回:
+        大模型返回的编排结果
+    '''
     print('Agent智能体编排动作')
+    
+    # 构建完整的PROMPT
+    if isinstance(message, list):
+        # 从消息列表中提取最后一条用户消息
+        user_message = None
+        for msg in reversed(message):
+            if msg.get('role') == 'user':
+                user_message = msg.get('content', '')
+                break
+        
+        if not user_message:
+            raise ValueError('消息列表中没有找到用户消息')
+        
+        # 将系统提示词和用户指令组合
+        PROMPT = AGENT_SYS_PROMPT + user_message
+    else:
+        # 兼容旧的字符串格式
+        PROMPT = AGENT_SYS_PROMPT + message
+    
+    # 调用大模型 原来只有这个
     agent_plan = llm_qianfan(PROMPT)
     return agent_plan
