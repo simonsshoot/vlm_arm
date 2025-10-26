@@ -95,7 +95,7 @@ def play_wav(wav_file='asset/welcome.wav', device='usb'):
     # 设备映射（根据实际硬件配置）
     device_map = {
         'hdmi': 'plughw:0,0',        # bcm2835 HDMI 1
-        'usb': 'plughw:1,0',          # UACDemoV1.0 (USB Audio)
+        'usb': 'plughw:2,0',          # UACDemoV1.0 (USB Audio)
         'headphone': 'plughw:2,0'     # bcm2835 Headphones
     }
     

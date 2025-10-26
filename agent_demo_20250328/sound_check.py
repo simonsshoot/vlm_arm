@@ -26,3 +26,4 @@ print('1. 尝试 USB 音频设备...')
 play_wav('temp_newtts.wav', device='usb')
 
 
+play_wav('temp/speech_record.wav',device='usb')
