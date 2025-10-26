@@ -109,5 +109,6 @@ def agent_plan(message):
         PROMPT = AGENT_SYS_PROMPT + message
     
     # 调用大模型 原来只有这个
-    agent_plan = llm_qianfan(PROMPT)
+    # agent_plan = llm_qianfan(PROMPT)
+    agent_plan=llm_360(PROMPT)
     return agent_plan
