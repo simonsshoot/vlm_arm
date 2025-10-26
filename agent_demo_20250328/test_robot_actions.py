@@ -131,6 +131,18 @@ def main():
                     print('已放松所有关节，可以手动拖动机械臂')
                 else:
                     print('已取消')
+
+            elif choice == '10':
+                print('\n执行：吸泵测试')
+                print('正在打开吸泵...')
+                pump_on()
+                print('✅ 吸泵已打开')
+                time.sleep(3)
+                print('正在关闭吸泵...')
+                pump_off()
+                print('✅ 吸泵已关闭')
+                print('吸泵测试完成')
+
                     
             elif choice == '0':
                 print('\n执行：所有动作演示')
