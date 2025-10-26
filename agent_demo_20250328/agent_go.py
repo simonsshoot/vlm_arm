@@ -22,7 +22,7 @@ from utils_tts import *             # 语音合成模块
 # print('播放欢迎词')
 pump_off()
 # back_zero()
-play_wav('asset/welcome.wav')
+# play_wav('asset/welcome.wav')
 
 message=[]
 message.append({"role":"system","content":AGENT_SYS_PROMPT})
