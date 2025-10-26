@@ -23,13 +23,6 @@ tts(TEXT=speech_result,tts_wav_path='temp_newtts.wav',mode='online')
 # 播放语音合成音频 - 尝试不同设备
 print('\n=== 测试音频播放 ===')
 print('1. 尝试 USB 音频设备...')
-play_wav('temp/speech_record.wav', device='usb')
+play_wav('temp_newtts.wav', device='usb')
 
-print('\n2. 尝试 3.5mm 耳机接口...')
-play_wav('temp/speech_record.wav', device='headphone')
-
-print('\n3. 尝试 HDMI 输出...')
-play_wav('temp/speech_record.wav', device='hdmi')
-
-print('\n如果听到声音，请记住是哪个设备！')
 
