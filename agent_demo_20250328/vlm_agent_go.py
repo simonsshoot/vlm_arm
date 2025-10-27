@@ -58,7 +58,7 @@ def vlm_360_move(PROMPT='桌上有一个小人，移动到该处并用吸泵吸�
     
     ## 第三步：拍摄俯视图
     print('【第3步】拍摄俯视图')
-    top_view_shot(check=False)
+    top_view_shot(check=False,camera_index=0)
     img_path = 'temp/vl_now.jpg'
     
     ## 第四步：调用360视觉大模型识别物体
