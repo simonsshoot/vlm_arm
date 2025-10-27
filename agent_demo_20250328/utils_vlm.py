@@ -17,6 +17,7 @@ import requests
 import json
 import base64
 import io
+VISION_360_KEY="fk3468961406.sPA6Fw5yY7kTgIefJ80aX1FphqvnndXV9843ba50"
 
 OUTPUT_VLM = ''
 # 系统提示词
@@ -302,9 +303,30 @@ def vision_360_api(PROMPT='帮我把红色方块放在钢笔上', img_path='temp
     response_json = response.json()
     
     if vlm_option == 0:  # 定位任务
-        # 提取JSON内容并解析
+        # 提取内容
         content = response_json["choices"][0]["message"]["content"].strip()
-        result = eval(content)
+        print(f'    大模型原始返回: {content}')
+        
+        # 清理 Markdown 代码块标记
+        if content.startswith('```'):
+            # 移除 ```json 或 ``` 开头
+            content = content.split('\n', 1)[1] if '\n' in content else content[3:]
+        if content.endswith('```'):
+            # 移除 ``` 结尾
+            content = content.rsplit('\n', 1)[0] if '\n' in content else content[:-3]
+        content = content.strip()
+        
+        # 尝试解析 JSON
+        try:
+            result = json.loads(content)
+        except json.JSONDecodeError:
+            # 如果 json.loads 失败，尝试 eval
+            try:
+                result = eval(content)
+            except:
+                print(f'    ❌ 无法解析大模型返回内容')
+                raise
+                
     elif vlm_option == 1:  # 视觉问答任务
         result = response_json["choices"][0]["message"]["content"].strip()
         print(result)
