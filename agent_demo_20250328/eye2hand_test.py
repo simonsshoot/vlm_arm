@@ -25,8 +25,7 @@ def main():
   time.sleep(2)
   print('移动到俯视姿态')
   move_to_top_view()
-  time.sleep(2)
   camera_check()
 
-if __name__=='main':
+if __name__=='__main__':
   main()
