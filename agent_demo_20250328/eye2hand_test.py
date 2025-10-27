@@ -63,8 +63,8 @@ def eye2hand_calibration():
         info_frame = frame.copy()
         cv2.putText(info_frame, f'Selected Joint: {selected_joint}', (10, 30), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-        cv2.putText(info_frame, f'Angles: {[round(a, 1) for a in current_angles]}', (10, 60), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+        # cv2.putText(info_frame, f'Angles: {[round(a, 1) for a in current_angles]}', (10, 60), 
+        #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
         cv2.putText(info_frame, f'Points recorded: {len(calibration_points)}', (10, 90), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 1)
         if input_buffer:
@@ -174,12 +174,14 @@ def main():
     print('开始眼手协调测试程序')
     back_zero()
     time.sleep(2)
-    print('移动到俯视姿态')
-    move_to_top_view()
+    # print('移动到俯视姿态')
+    # move_to_top_view()
+    # print(mc.get_coords())
     
     # LED变蓝是机械臂的错误指示（逆运动学无解）
-    print('移动到标定起始位置')
-    move_to_coords(X=150, Y=-130, HEIGHT_SAFE=230)
+    # print('移动到标定起始位置')
+    # move_to_coords(X=150, Y=-130, HEIGHT_SAFE=200)
+    # print(mc.get_coords())
     
     # 使用新的手眼标定函数
     calibration_points = eye2hand_calibration()
