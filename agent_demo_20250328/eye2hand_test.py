@@ -23,7 +23,8 @@ def eye2hand_calibration():
     
     键盘操作：
     - 1-6: 选择要控制的关节 (1=关节1, 2=关节2, ..., 6=关节6)
-    - +/-: 增加/减少选中关节的角度 (每次±5度)
+    - +数字: 增加角度 (如 +5, +10)
+    - -数字: 减少角度 (如 -5, -10)
     - r: 记录当前位置的坐标和角度
     - z: 归零
     - s: 保存当前画面
@@ -32,7 +33,8 @@ def eye2hand_calibration():
     print('\n=== 手眼标定程序 ===')
     print('键盘操作说明：')
     print('  1-6: 选择关节')
-    print('  +/-: 调整角度 (±5度)')
+    print('  +数字: 增加角度 (如 +5, +10)')
+    print('  -数字: 减少角度 (如 -5, -10)')
     print('  r: 记录当前位置')
     print('  z: 归零')
     print('  s: 保存画面')
@@ -45,6 +47,7 @@ def eye2hand_calibration():
     
     selected_joint = 1  # 默认选择关节1
     calibration_points = []  # 存储标定点
+    input_buffer = ""  # 用于存储输入的数字
     
     while True:
         # 读取摄像头画面
@@ -64,6 +67,9 @@ def eye2hand_calibration():
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
         cv2.putText(info_frame, f'Points recorded: {len(calibration_points)}', (10, 90), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 1)
+        if input_buffer:
+            cv2.putText(info_frame, f'Input: {input_buffer}', (10, 120), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
         
         # 显示画面
         cv2.imshow('Eye2Hand Calibration', info_frame)
@@ -75,22 +81,51 @@ def eye2hand_calibration():
         if key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5'), ord('6')]:
             selected_joint = int(chr(key))
             print(f'选择关节 {selected_joint}')
+            input_buffer = ""
         
-        # 增加角度
+        # 数字输入 (0-9)
+        elif key >= ord('0') and key <= ord('9'):
+            input_buffer += chr(key)
+            print(f'输入: {input_buffer}')
+        
+        # 加号 - 增加角度
         elif key == ord('=') or key == ord('+'):
-            current_angle = current_angles[selected_joint - 1]
-            new_angle = current_angle + 5
-            mc.send_angle(selected_joint, new_angle, 30)
-            print(f'关节 {selected_joint}: {current_angle:.1f}° -> {new_angle:.1f}°')
-            time.sleep(0.1)
+            if input_buffer:
+                try:
+                    angle_change = float(input_buffer)
+                    current_angle = current_angles[selected_joint - 1]
+                    new_angle = current_angle + angle_change
+                    mc.send_angle(selected_joint, new_angle, 30)
+                    print(f'关节 {selected_joint}: {current_angle:.1f}° -> {new_angle:.1f}° (+{angle_change}°)')
+                    input_buffer = ""
+                    time.sleep(0.1)
+                except ValueError:
+                    print('输入无效')
+                    input_buffer = ""
+            else:
+                print('请先输入角度值，如: 5 然后按 +')
         
-        # 减少角度
+        # 减号 - 减少角度
         elif key == ord('-') or key == ord('_'):
-            current_angle = current_angles[selected_joint - 1]
-            new_angle = current_angle - 5
-            mc.send_angle(selected_joint, new_angle, 30)
-            print(f'关节 {selected_joint}: {current_angle:.1f}° -> {new_angle:.1f}°')
-            time.sleep(0.1)
+            if input_buffer:
+                try:
+                    angle_change = float(input_buffer)
+                    current_angle = current_angles[selected_joint - 1]
+                    new_angle = current_angle - angle_change
+                    mc.send_angle(selected_joint, new_angle, 30)
+                    print(f'关节 {selected_joint}: {current_angle:.1f}° -> {new_angle:.1f}° (-{angle_change}°)')
+                    input_buffer = ""
+                    time.sleep(0.1)
+                except ValueError:
+                    print('输入无效')
+                    input_buffer = ""
+            else:
+                print('请先输入角度值，如: 5 然后按 -')
+        
+        # 清除输入缓冲
+        elif key == 27:  # ESC键
+            input_buffer = ""
+            print('清除输入')
         
         # 归零
         elif key == ord('z'):
