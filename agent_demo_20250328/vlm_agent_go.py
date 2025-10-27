@@ -10,6 +10,7 @@ from utils_robot import *           # 连接机械臂
 from utils_vlm import *             # 视觉大模型
 from utils_pump import *            # GPIO、吸泵
 from utils_led import *             # 控制LED灯颜色
+from utils_camera import *
 import time
 
 def read_instruction_from_file(file_path='temp/vlm_instruction.txt'):
@@ -212,6 +213,9 @@ def main():
     print('\n清理资源...')
     GPIO.cleanup()
     cv2.destroyAllWindows()
+    # move_to_top_view()
+    # check_camera()
+    back_zero()
 
 if __name__ == '__main__':
     try:

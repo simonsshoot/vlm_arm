@@ -179,9 +179,9 @@ def main():
     # print(mc.get_coords())
     
     # LED变蓝是机械臂的错误指示（逆运动学无解）
-    # print('移动到标定起始位置')
-    # move_to_coords(X=150, Y=-130, HEIGHT_SAFE=200)
-    # print(mc.get_coords())
+    print('移动到标定起始位置')
+    move_to_coords(X=150, Y=-130, HEIGHT_SAFE=200)
+    print(mc.get_coords())
     
     # 使用新的手眼标定函数
     calibration_points = eye2hand_calibration()
