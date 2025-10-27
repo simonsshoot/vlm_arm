@@ -102,6 +102,7 @@ def top_view_shot(check=False, camera_index=0):
     '''
     print('    移动至俯视姿态')
     move_to_top_view()
+    time.sleep(5)
     
     # 尝试打开摄像头
     print(f'    尝试打开摄像头 /dev/video{camera_index}')
@@ -121,12 +122,12 @@ def top_view_shot(check=False, camera_index=0):
     
     # 等待摄像头初始化
     print('    摄像头初始化中...')
-    time.sleep(1.5)
+    time.sleep(3)
     
     # 预热：读取并丢弃前10帧
     for i in range(10):
         cap.read()
-        time.sleep(0.1)
+        time.sleep(0.2)
     
     # 读取最终画面
     success, img_bgr = cap.read()
