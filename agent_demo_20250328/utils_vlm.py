@@ -13,6 +13,11 @@ font = ImageFont.truetype('asset/SimHei.ttf', 26)
 
 from API_KEY import *
 from utils_tts import *
+import requests
+import json
+import base64
+import io
+
 OUTPUT_VLM = ''
 # 系统提示词
 SYSTEM_PROMPT_CATCH = '''
@@ -232,3 +237,80 @@ def post_processing_viz(result, img_path, check=False):
             pass
 
     return START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER
+
+def vision_360_api(PROMPT='帮我把红色方块放在钢笔上', img_path='temp/vl_now.jpg', vlm_option=0):
+    '''
+    360视觉大模型API，支持物体定位和视觉问答
+    '''
+    
+    # 选择系统提示词
+    if vlm_option == 0:
+        SYSTEM_PROMPT = SYSTEM_PROMPT_CATCH
+    elif vlm_option == 1:
+        SYSTEM_PROMPT = SYSTEM_PROMPT_VQA
+    
+    # 读取图片并编码为base64
+    with open(img_path, 'rb') as image_file:
+        image_data = image_file.read()
+    image_b64 = base64.b64encode(image_data).decode('utf-8')
+    
+    # 构造消息
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": SYSTEM_PROMPT + PROMPT
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{image_b64}"
+                    }
+                }
+            ]
+        }
+    ]
+    
+    # 构造请求payload
+    payload = json.dumps({
+        "model": "gpt-4o",  # 360的视觉模型
+        "messages": messages,
+        "temperature": 0.0,
+        "stream": False,
+        "max_completion_tokens": 1024,
+        "user": "robot_arm",
+        "content_filter": False,
+        "repetition_penalty": 1.05,
+    })
+    
+    # 请求头
+    headers = {
+        "Authorization": VISION_360_KEY,
+        "Content-Type": "application/json"
+    }
+    
+    # 发送请求
+    response = requests.post(
+        url="https://api.360.cn/v1/chat/completions",
+        headers=headers,
+        data=payload
+    )
+    
+    # 解析返回结果
+    response_json = response.json()
+    
+    if vlm_option == 0:  # 定位任务
+        # 提取JSON内容并解析
+        content = response_json["choices"][0]["message"]["content"].strip()
+        result = eval(content)
+    elif vlm_option == 1:  # 视觉问答任务
+        result = response_json["choices"][0]["message"]["content"].strip()
+        print(result)
+        tts(result)  # 语音合成，导出wav音频文件
+        play_wav('temp/tts.wav')  # 播放语音合成音频文件
+    
+    print('    360视觉大模型调用成功！')
+    
+    return result
