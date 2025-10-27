@@ -94,20 +94,49 @@ def move_to_top_view():
     mc.send_angles([-62.13, 0, -90, 0, 0, -16.34], 10)
     time.sleep(3)
 
-def top_view_shot(check=False):
+def top_view_shot(check=False, camera_index=0):
     '''
     拍摄一张图片并保存
     check：是否需要人工看屏幕确认拍照成功，再在键盘上按q键确认继续
+    camera_index: 摄像头设备编号 (默认0, USB摄像头通常是0或1)
     '''
     print('    移动至俯视姿态')
     move_to_top_view()
     
-    # 获取摄像头，传入0表示获取系统默认摄像头
-    cap = cv2.VideoCapture(0)
-    # 打开cap
-    cap.open(0)
-    time.sleep(0.3)
+    # 尝试打开摄像头
+    print(f'    尝试打开摄像头 /dev/video{camera_index}')
+    cap = cv2.VideoCapture(camera_index)
+    
+    if not cap.isOpened():
+        print(f'    ❌ 无法打开摄像头 {camera_index}，尝试备用设备')
+        camera_index = 1 if camera_index == 0 else 0
+        cap = cv2.VideoCapture(camera_index)
+        if not cap.isOpened():
+            print('    ❌ 所有摄像头都无法打开')
+            return
+    
+    # 设置摄像头参数
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    
+    # 等待摄像头初始化
+    print('    摄像头初始化中...')
+    time.sleep(1.5)
+    
+    # 预热：读取并丢弃前10帧
+    for i in range(10):
+        cap.read()
+        time.sleep(0.1)
+    
+    # 读取最终画面
     success, img_bgr = cap.read()
+    
+    if not success:
+        print('    ❌ 摄像头读取失败')
+        cap.release()
+        return
+    
+    print(f'    ✅ 成功拍摄，分辨率: {img_bgr.shape[1]}x{img_bgr.shape[0]}')
     
     # 保存图像
     print('    保存至temp/vl_now.jpg')
