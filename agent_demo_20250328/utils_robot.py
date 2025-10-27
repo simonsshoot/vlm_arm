@@ -5,6 +5,7 @@
 print('导入机械臂连接模块')
 
 from pymycobot.mycobot280 import MyCobot280
+from pymycobot.mycobot import MyCobot
 from pymycobot import PI_PORT, PI_BAUD
 import cv2
 import numpy as np
@@ -89,7 +90,8 @@ def single_joint_move(joint_index, angle):
 
 def move_to_top_view():
     print('移动至俯视姿态')
-    mc.send_angles([-62.13, 8.96, -87.71, -14.41, 2.54, -16.34], 10)
+    # mc.send_angles([-62.13, 8.96, -87.71, -14.41, 2.54, -16.34], 10)
+    mc.send_angles([-62.13, 0, -90, 0, 0, -16.34], 10)
     time.sleep(3)
 
 def top_view_shot(check=False):
@@ -133,6 +135,10 @@ def top_view_shot(check=False):
     cap.release()
     # 关闭图像窗口
     # cv2.destroyAllWindows()
+
+def print_angles():
+    cur_angles=mc.get_angles()
+    return cur_angles
 
 def eye2hand(X_im=160, Y_im=120):
     '''

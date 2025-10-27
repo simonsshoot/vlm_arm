@@ -60,7 +60,7 @@ def main():
     '''主函数'''
     # 初始化：归零和关闭吸泵
     print('初始化机械臂...')
-    pump_off()
+    # pump_off()
     back_zero()
     
     while True:
@@ -148,7 +148,9 @@ def main():
                     except:
                         pass
 
-                    
+            elif choice=='11':
+                angles=print_angles()
+                print(f"current angles:{angles}")
             elif choice == '0':
                 print('\n执行：所有动作演示')
                 confirm = input('这将执行所有动作，需要较长时间，确认吗？(y/n): ').strip().lower()
@@ -160,7 +162,7 @@ def main():
             elif choice.lower() == 'q':
                 print('\n退出程序...')
                 back_zero()
-                pump_off()
+                # pump_off()
                 print('已归零并关闭吸泵，再见！')
                 break
                 
@@ -170,7 +172,7 @@ def main():
         except KeyboardInterrupt:
             print('\n\n检测到 Ctrl+C，正在安全退出...')
             back_zero()
-            pump_off()
+            # pump_off()
             print('已归零并关闭吸泵，程序退出。')
             break
             
