@@ -83,15 +83,16 @@ LED灯改变颜色，比如：llm_led('帮我把LED灯的颜色改为贝加尔�
 【我现在的指令是】
 '''
 
-def agent_plan(message):
+def agent_plan(message, model='360'):
     '''
     智能体编排动作
     参数:
         message: 消息列表，包含system和user消息
+        model: 使用的大模型 ('360', 'qianfan', 'yi')
     返回:
         大模型返回的编排结果
     '''
-    print('Agent智能体编排动作')
+    print(f'Agent智能体编排动作 (使用模型: {model})')
     
     # 构建完整的PROMPT
     if isinstance(message, list):
@@ -111,7 +112,15 @@ def agent_plan(message):
         # 兼容旧的字符串格式
         PROMPT = AGENT_SYS_PROMPT + message
     
-    # 调用大模型 原来只有这个
-    # agent_plan = llm_qianfan(PROMPT)
-    agent_plan=llm_360(PROMPT)
-    return agent_plan
+    # 根据model参数选择大模型
+    if model == '360':
+        agent_plan_result = llm_360(PROMPT)
+    elif model == 'qianfan':
+        agent_plan_result = llm_qianfan(PROMPT)
+    elif model == 'yi':
+        agent_plan_result = llm_yi(PROMPT)
+    else:
+        print(f'⚠️  未知模型 {model}，使用默认的360模型')
+        agent_plan_result = llm_360(PROMPT)
+    
+    return agent_plan_result
