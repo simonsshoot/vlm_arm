@@ -183,34 +183,6 @@ def vlm_360_locate(PROMPT='桌上有一个小人'):
         'success': True
     }
 
-def vlm_360_move(PROMPT='桌上有一个小人'):
-    '''
-    使用360视觉大模型识别物体并移动到该位置
-    
-    参数:
-        PROMPT: 用户指令（描述目标物体）
-    
-    返回:
-        成功提示字符串
-    '''
-    print(f'\n=== 360视觉定位并移动: {PROMPT} ===\n')
-    
-    # 调用定位函数
-    result = vlm_360_locate(PROMPT)
-    
-    if not result['success']:
-        return '❌ 定位失败'
-    
-    # 提取机械臂坐标
-    robot_x = result['robot_x']
-    robot_y = result['robot_y']
-    
-    # 移动到目标位置
-    print(f'\n=== 移动到目标位置 ({robot_x}, {robot_y}) ===\n')
-    move_to_coords(X=robot_x, Y=robot_y)
-    
-    return f'✅ 已移动到 ({robot_x}, {robot_y})'
-
 def vlm_360_pickup_and_move(PROMPT='把笔放在肠溶胶囊药品盒子上'):
     '''
     使用360视觉大模型识别起点和终点物体，并用吸泵搬运

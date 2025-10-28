@@ -43,21 +43,35 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
     top_view_shot(check=False)
     
     ## 第四步：将图片输入给多模态视觉大模型
-    print('第四步：将图片输入给多模态视觉大模型')
+    print('第四步：将图片输入给360视觉大模型')
     img_path = 'temp/vl_now.jpg'
     
     n = 1
-    while n < 5:
+    max_retries = 3
+    result = None
+    
+    while n <= max_retries:
         try:
-            print('    尝试第 {} 次访问多模态大模型'.format(n))
-            # result = yi_vision_api(PROMPT, img_path='temp/vl_now.jpg')  # yi_vision定位能力出现波动，暂时换用QwenVL系列
-            result = QwenVL_api(PROMPT, img_path='temp/vl_now.jpg')
-            print('    多模态大模型调用成功！')
-            print(result)
+            print('    尝试第 {}/{} 次访问360视觉大模型'.format(n, max_retries))
+            # 使用默认的SYSTEM_PROMPT_CATCH系统提示词
+            result = vision_360_api(
+                PROMPT=PROMPT,
+                img_path=img_path,
+                vlm_option=0
+            )
+            print('    ✅ 360视觉大模型调用成功！')
+            print('    识别结果:', result)
             break
         except Exception as e:
-            print('    多模态大模型返回数据结构错误，再尝试一次', e)
+            print('    ❌ 大模型返回错误:', e)
+            if n < max_retries:
+                print('    等待2秒后重试...')
+                time.sleep(2)
             n += 1
+    
+    if result is None:
+        print('❌ 多次尝试后仍无法获取大模型结果')
+        return '❌ 识别失败'
     
     ## 第五步：视觉大模型输出结果后处理和可视化
     print('第五步：视觉大模型输出结果后处理和可视化')
@@ -81,16 +95,24 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
     # exit()
    
 def vlm_vqa(PROMPT='请数一数图中中几个方块', input_way='keyboard'):
+    '''
+    视觉问答：使用360视觉大模型回答图像相关问题
+    '''
     # 机械臂归零
     print('机械臂归零')
     mc.send_angles([0, 0, 0, 0, 0, 0], 50)
     time.sleep(3)
+    
     print('第二步，给出的指令是：', PROMPT)
+    
+    # 拍摄俯视图
     top_view_shot(check=False)
     img_path = 'temp/vl_now.jpg'
-    result = QwenVL_api(PROMPT, img_path='temp/vl_now.jpg', vlm_option=1)
-    print('    多模态大模型调用成功！')
-    # print(result)
+    
+    # 调用360视觉大模型进行视觉问答
+    result = vision_360_api(PROMPT, img_path=img_path, vlm_option=1)
+    print('    ✅ 360视觉大模型调用成功！')
+    
     GPIO.cleanup()            # 释放GPIO pin channel
     cv2.destroyAllWindows()   # 关闭所有opencv窗口
     return result
