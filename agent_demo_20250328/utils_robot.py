@@ -146,6 +146,7 @@ def top_view_shot(check=False, camera_index=0):
     # 屏幕上展示图像
     cv2.destroyAllWindows()   # 关闭所有opencv窗口
     cv2.imshow('zihao_vlm', img_bgr) 
+    check = False
     
     if check:
         print('请确认拍照成功，按c键继续，按q键退出')
