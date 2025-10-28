@@ -239,16 +239,28 @@ def post_processing_viz(result, img_path, check=False):
 
     return START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER
 
-def vision_360_api(PROMPT='帮我把红色方块放在钢笔上', img_path='temp/vl_now.jpg', vlm_option=0):
+def vision_360_api(PROMPT='帮我把红色方块放在钢笔上', img_path='temp/vl_now.jpg', vlm_option=0, custom_system_prompt=None):
     '''
     360视觉大模型API，支持物体定位和视觉问答
+    
+    参数:
+        PROMPT: 用户提示词
+        img_path: 图像路径
+        vlm_option: 0-物体定位, 1-视觉问答
+        custom_system_prompt: 自定义系统提示词（如果提供，将覆盖默认提示词）
     '''
     
     # 选择系统提示词
-    if vlm_option == 0:
-        SYSTEM_PROMPT = SYSTEM_PROMPT_CATCH
-    elif vlm_option == 1:
-        SYSTEM_PROMPT = SYSTEM_PROMPT_VQA
+    if custom_system_prompt is not None:
+        # 使用自定义系统提示词，PROMPT将作为完整的用户消息
+        messages_text = PROMPT
+    else:
+        # 使用默认系统提示词
+        if vlm_option == 0:
+            SYSTEM_PROMPT = SYSTEM_PROMPT_CATCH
+        elif vlm_option == 1:
+            SYSTEM_PROMPT = SYSTEM_PROMPT_VQA
+        messages_text = SYSTEM_PROMPT + PROMPT
     
     # 读取图片并编码为base64
     with open(img_path, 'rb') as image_file:
@@ -262,7 +274,7 @@ def vision_360_api(PROMPT='帮我把红色方块放在钢笔上', img_path='temp
             "content": [
                 {
                     "type": "text",
-                    "text": SYSTEM_PROMPT + PROMPT
+                    "text": messages_text
                 },
                 {
                     "type": "image_url",

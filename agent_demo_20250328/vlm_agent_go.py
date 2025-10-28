@@ -69,9 +69,29 @@ def vlm_360_locate(PROMPT='桌上有一个小人'):
     top_view_shot(check=False, camera_index=0)
     img_path = 'temp/vl_now.jpg'
     
-    ## 第二步：调用360视觉大模型识别物体
+    ## 第二步：调用360视觉大模型识别物体（使用改进的call_vlm方法）
     print('【第2步】调用360视觉大模型识别物体')
     
+    # 读取图像
+    img_bgr = cv2.imread(img_path)
+    
+    # 系统提示词
+    system_prompt = '''
+我即将说一句给机械臂的指令，你帮我从这句话中提取出起始物体和终止物体，并从这张图中分别找到这两个物体左上角和右下角的像素坐标，输出json数据结构。
+
+例如，如果我的指令是：请帮我把红色方块放在房子简笔画上。
+你输出这样的格式：
+{
+ "start":"红色方块",
+ "start_xyxy":[[102,505],[324,860]],
+ "end":"房子简笔画",
+ "end_xyxy":[[300,150],[476,310]]
+}
+
+只回复json本身即可，不要回复其它内容
+'''
+    
+    # 调用360大模型（参考test_360_vlm.py的方法）
     n = 1
     max_retries = 3
     result = None
@@ -79,10 +99,19 @@ def vlm_360_locate(PROMPT='桌上有一个小人'):
     while n <= max_retries:
         try:
             print(f'    尝试第 {n}/{max_retries} 次访问360视觉大模型...')
-            result = vision_360_api(PROMPT, img_path=img_path, vlm_option=0)
+            
+            # 使用改进的vision_360_api调用
+            response = vision_360_api(
+                PROMPT=system_prompt + "\n我现在的指令是：" + PROMPT,
+                img_path=img_path,
+                vlm_option=0
+            )
+            
+            print(f'    大模型返回: {response}')
+            result = response
             print('    ✅ 360视觉大模型调用成功！')
-            print(f'    识别结果: {result}')
             break
+            
         except Exception as e:
             print(f'    ❌ 大模型返回错误: {e}')
             if n < max_retries:
@@ -97,8 +126,6 @@ def vlm_360_locate(PROMPT='桌上有一个小人'):
     ## 第三步：提取起点坐标并可视化
     print('【第3步】提取坐标并可视化')
     try:
-        # 读取图像
-        img_bgr = cv2.imread(img_path)
         img_h = img_bgr.shape[0]
         img_w = img_bgr.shape[1]
         FACTOR = 999
@@ -138,6 +165,8 @@ def vlm_360_locate(PROMPT='桌上有一个小人'):
         
     except Exception as e:
         print(f'❌ 坐标提取失败: {e}')
+        import traceback
+        traceback.print_exc()
         return {'success': False}
     
     ## 第四步：手眼标定，将像素坐标转换为机械臂坐标
@@ -181,6 +210,163 @@ def vlm_360_move(PROMPT='桌上有一个小人'):
     move_to_coords(X=robot_x, Y=robot_y)
     
     return f'✅ 已移动到 ({robot_x}, {robot_y})'
+
+def vlm_360_pickup_and_move(PROMPT='把笔放在肠溶胶囊药品盒子上'):
+    '''
+    使用360视觉大模型识别起点和终点物体，并用吸泵搬运
+    
+    参数:
+        PROMPT: 用户指令（描述搬运任务）
+    
+    返回:
+        成功提示字符串
+    '''
+    print(f'\n=== 360视觉定位并搬运: {PROMPT} ===\n')
+    
+    ## 第一步：拍摄俯视图
+    print('【第1步】拍摄俯视图')
+    top_view_shot(check=False, camera_index=0)
+    img_path = 'temp/vl_now.jpg'
+    
+    ## 第二步：调用360视觉大模型识别物体
+    print('【第2步】调用360视觉大模型识别起点和终点物体')
+    
+    # 读取图像
+    img_bgr = cv2.imread(img_path)
+    
+    # 系统提示词
+    system_prompt = '''
+我即将说一句给机械臂的指令，你帮我从这句话中提取出起始物体和终止物体，并从这张图中分别找到这两个物体左上角和右下角的像素坐标，输出json数据结构。
+
+例如，如果我的指令是：请帮我把红色方块放在房子简笔画上。
+你输出这样的格式：
+{
+ "start":"红色方块",
+ "start_xyxy":[[102,505],[324,860]],
+ "end":"房子简笔画",
+ "end_xyxy":[[300,150],[476,310]]
+}
+
+只回复json本身即可，不要回复其它内容
+'''
+    
+    # 调用360大模型
+    n = 1
+    max_retries = 3
+    result = None
+    
+    while n <= max_retries:
+        try:
+            print(f'    尝试第 {n}/{max_retries} 次访问360视觉大模型...')
+            
+            response = vision_360_api(
+                PROMPT=system_prompt + "\n我现在的指令是：" + PROMPT,
+                img_path=img_path,
+                vlm_option=0
+            )
+            
+            print(f'    大模型返回: {response}')
+            result = response
+            print('    ✅ 360视觉大模型调用成功！')
+            break
+            
+        except Exception as e:
+            print(f'    ❌ 大模型返回错误: {e}')
+            if n < max_retries:
+                print(f'    等待2秒后重试...')
+                time.sleep(2)
+            n += 1
+    
+    if result is None:
+        print('❌ 多次尝试后仍无法获取大模型结果')
+        return '❌ 识别失败'
+    
+    ## 第三步：提取起点和终点坐标并可视化
+    print('【第3步】提取坐标并可视化')
+    try:
+        img_h = img_bgr.shape[0]
+        img_w = img_bgr.shape[1]
+        FACTOR = 999
+        
+        # 提取起点坐标
+        START_NAME = result['start']
+        START_X_MIN = int(result['start_xyxy'][0][0] * img_w / FACTOR)
+        START_Y_MIN = int(result['start_xyxy'][0][1] * img_h / FACTOR)
+        START_X_MAX = int(result['start_xyxy'][1][0] * img_w / FACTOR)
+        START_Y_MAX = int(result['start_xyxy'][1][1] * img_h / FACTOR)
+        START_X_CENTER = int((START_X_MIN + START_X_MAX) / 2)
+        START_Y_CENTER = int((START_Y_MIN + START_Y_MAX) / 2)
+        
+        print(f'    起点物体: {START_NAME}')
+        print(f'    起点边界框: ({START_X_MIN}, {START_Y_MIN}) -> ({START_X_MAX}, {START_Y_MAX})')
+        print(f'    起点中心点: ({START_X_CENTER}, {START_Y_CENTER})')
+        
+        # 提取终点坐标
+        END_NAME = result['end']
+        END_X_MIN = int(result['end_xyxy'][0][0] * img_w / FACTOR)
+        END_Y_MIN = int(result['end_xyxy'][0][1] * img_h / FACTOR)
+        END_X_MAX = int(result['end_xyxy'][1][0] * img_w / FACTOR)
+        END_Y_MAX = int(result['end_xyxy'][1][1] * img_h / FACTOR)
+        END_X_CENTER = int((END_X_MIN + END_X_MAX) / 2)
+        END_Y_CENTER = int((END_Y_MIN + END_Y_MAX) / 2)
+        
+        print(f'    终点物体: {END_NAME}')
+        print(f'    终点边界框: ({END_X_MIN}, {END_Y_MIN}) -> ({END_X_MAX}, {END_Y_MAX})')
+        print(f'    终点中心点: ({END_X_CENTER}, {END_Y_CENTER})')
+        
+        # 可视化
+        from PIL import Image, ImageDraw, ImageFont
+        img_viz = img_bgr.copy()
+        
+        # 画起点
+        cv2.rectangle(img_viz, (START_X_MIN, START_Y_MIN), (START_X_MAX, START_Y_MAX), [0, 0, 255], thickness=3)
+        cv2.circle(img_viz, [START_X_CENTER, START_Y_CENTER], 6, [0, 0, 255], thickness=-1)
+        
+        # 画终点
+        cv2.rectangle(img_viz, (END_X_MIN, END_Y_MIN), (END_X_MAX, END_Y_MAX), [255, 0, 0], thickness=3)
+        cv2.circle(img_viz, [END_X_CENTER, END_Y_CENTER], 6, [255, 0, 0], thickness=-1)
+        
+        # 写物体名称
+        img_rgb = cv2.cvtColor(img_viz, cv2.COLOR_BGR2RGB)
+        img_pil = Image.fromarray(img_rgb)
+        draw = ImageDraw.Draw(img_pil)
+        try:
+            font = ImageFont.truetype('asset/SimHei.ttf', 32)
+        except:
+            font = ImageFont.load_default()
+        draw.text((START_X_MIN, START_Y_MIN-35), START_NAME, font=font, fill=(255, 0, 0, 1))
+        draw.text((END_X_MIN, END_Y_MIN-35), END_NAME, font=font, fill=(0, 0, 255, 1))
+        img_viz = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
+        
+        cv2.imwrite('temp/vl_now_viz.jpg', img_viz)
+        print('    保存可视化结果至 temp/vl_now_viz.jpg')
+        
+    except Exception as e:
+        print(f'❌ 坐标提取失败: {e}')
+        import traceback
+        traceback.print_exc()
+        return '❌ 坐标提取失败'
+    
+    ## 第四步：手眼标定，将像素坐标转换为机械臂坐标
+    print('【第4步】手眼标定，像素坐标转机械臂坐标')
+    START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
+    END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
+    
+    print(f'    起点像素坐标: ({START_X_CENTER}, {START_Y_CENTER}) -> 机械臂坐标: ({START_X_MC}, {START_Y_MC})')
+    print(f'    终点像素坐标: ({END_X_CENTER}, {END_Y_CENTER}) -> 机械臂坐标: ({END_X_MC}, {END_Y_MC})')
+    
+    ## 第五步：执行搬运任务
+    print('【第5步】执行搬运任务')
+    pump_move(
+        mc=mc,
+        XY_START=[START_X_MC, START_Y_MC],
+        HEIGHT_START=90,  # 笔的高度
+        XY_END=[END_X_MC, END_Y_MC],
+        HEIGHT_END=100,   # 放置高度
+        HEIGHT_SAFE=220   # 安全高度
+    )
+    
+    return f'✅ 成功将 {START_NAME} 搬运到 {END_NAME} 上'
 
 def vlm_agent_play():
     '''
