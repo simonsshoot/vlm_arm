@@ -94,14 +94,50 @@ def vlm_360_locate(PROMPT='桌上有一个小人'):
         print('❌ 多次尝试后仍无法获取大模型结果')
         return {'success': False}
     
-    ## 第三步：视觉大模型输出结果后处理和可视化
-    print('【第3步】结果可视化')
+    ## 第三步：提取起点坐标并可视化
+    print('【第3步】提取坐标并可视化')
     try:
-        START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(
-            result, img_path, check=False
-        )
+        # 读取图像
+        img_bgr = cv2.imread(img_path)
+        img_h = img_bgr.shape[0]
+        img_w = img_bgr.shape[1]
+        FACTOR = 999
+        
+        # 提取起点坐标
+        START_NAME = result['start']
+        START_X_MIN = int(result['start_xyxy'][0][0] * img_w / FACTOR)
+        START_Y_MIN = int(result['start_xyxy'][0][1] * img_h / FACTOR)
+        START_X_MAX = int(result['start_xyxy'][1][0] * img_w / FACTOR)
+        START_Y_MAX = int(result['start_xyxy'][1][1] * img_h / FACTOR)
+        START_X_CENTER = int((START_X_MIN + START_X_MAX) / 2)
+        START_Y_CENTER = int((START_Y_MIN + START_Y_MAX) / 2)
+        
+        print(f'    识别到物体: {START_NAME}')
+        print(f'    边界框: ({START_X_MIN}, {START_Y_MIN}) -> ({START_X_MAX}, {START_Y_MAX})')
+        print(f'    中心点像素坐标: ({START_X_CENTER}, {START_Y_CENTER})')
+        
+        # 简单可视化（只画起点）
+        img_viz = img_bgr.copy()
+        img_viz = cv2.rectangle(img_viz, (START_X_MIN, START_Y_MIN), (START_X_MAX, START_Y_MAX), [0, 0, 255], thickness=3)
+        img_viz = cv2.circle(img_viz, [START_X_CENTER, START_Y_CENTER], 6, [0, 0, 255], thickness=-1)
+        
+        # 写中文物体名称
+        from PIL import Image, ImageDraw, ImageFont
+        img_rgb = cv2.cvtColor(img_viz, cv2.COLOR_BGR2RGB)
+        img_pil = Image.fromarray(img_rgb)
+        draw = ImageDraw.Draw(img_pil)
+        try:
+            font = ImageFont.truetype('asset/SimHei.ttf', 32)
+        except:
+            font = ImageFont.load_default()
+        draw.text((START_X_MIN, START_Y_MIN-35), START_NAME, font=font, fill=(255, 0, 0, 1))
+        img_viz = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
+        
+        cv2.imwrite('temp/vl_now_viz.jpg', img_viz)
+        print('    保存可视化结果至 temp/vl_now_viz.jpg')
+        
     except Exception as e:
-        print(f'❌ 可视化失败: {e}')
+        print(f'❌ 坐标提取失败: {e}')
         return {'success': False}
     
     ## 第四步：手眼标定，将像素坐标转换为机械臂坐标
@@ -117,6 +153,34 @@ def vlm_360_locate(PROMPT='桌上有一个小人'):
         'robot_y': TARGET_Y_MC,
         'success': True
     }
+
+def vlm_360_move(PROMPT='桌上有一个小人'):
+    '''
+    使用360视觉大模型识别物体并移动到该位置
+    
+    参数:
+        PROMPT: 用户指令（描述目标物体）
+    
+    返回:
+        成功提示字符串
+    '''
+    print(f'\n=== 360视觉定位并移动: {PROMPT} ===\n')
+    
+    # 调用定位函数
+    result = vlm_360_locate(PROMPT)
+    
+    if not result['success']:
+        return '❌ 定位失败'
+    
+    # 提取机械臂坐标
+    robot_x = result['robot_x']
+    robot_y = result['robot_y']
+    
+    # 移动到目标位置
+    print(f'\n=== 移动到目标位置 ({robot_x}, {robot_y}) ===\n')
+    move_to_coords(X=robot_x, Y=robot_y)
+    
+    return f'✅ 已移动到 ({robot_x}, {robot_y})'
 
 def vlm_agent_play():
     '''
