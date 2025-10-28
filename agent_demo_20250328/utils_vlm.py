@@ -245,6 +245,7 @@ def post_processing_viz(result, img_path, check=False):
 
     # 在屏幕上展示可视化效果图
     cv2.imshow('zihao_vlm', img_bgr) 
+    check=False
 
     if check:
         print('    请确认可视化成功，按c键继续，按q键退出')

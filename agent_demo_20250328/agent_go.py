@@ -52,6 +52,49 @@ def read_order_from_file(file_path='temp/test_input.txt'):
         print(f'读取文件失败: {e}')
         return None
 
+def read_multi_orders_from_file(file_path='temp/test_input.txt'):
+    '''
+    从文本文件读取多条指令，每条指令以"；"分割，"END；"表示结束
+    参数:
+        file_path: 文本文件路径
+    返回:
+        指令列表
+    '''
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+        
+        print(f'从文件读取多步指令:\n{content}\n')
+        
+        # 按"；"分割指令
+        raw_orders = content.split('；')
+        orders = []
+        
+        for order in raw_orders:
+            order = order.strip()
+            # 如果遇到END，停止读取
+            if order.upper() == 'END' or order == '':
+                break
+            orders.append(order)
+        
+        print(f'解析出 {len(orders)} 条指令:')
+        for i, order in enumerate(orders, 1):
+            print(f'  {i}. {order}')
+        print()
+        
+        return orders
+    except FileNotFoundError:
+        print(f'文件不存在: {file_path}，创建默认多步指令文件')
+        default_content = '先归零；\n摇头；\n把绿色方块放在篮球上；\nEND；'
+        import os
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(default_content)
+        return ['先归零', '摇头', '把绿色方块放在篮球上']
+    except Exception as e:
+        print(f'读取文件失败: {e}')
+        return None
+
 def agent_play():
     '''
     主函数，语音控制机械臂智能体编排动作
@@ -64,53 +107,68 @@ def agent_play():
     
     # 输入指令
     print('\n请选择输入方式：')
-    print('【默认】直接按Enter - 从txt文件读取 (temp/test_input.txt)')
+    print('【默认】直接按Enter - 从txt文件读取多步指令 (temp/test_input.txt)')
     print('【数字】输入秒数 - 录音并语音识别')
     print('【k】键盘输入')
     print('【c】测试指令')
     start_record_ok = input('请选择: ').strip()
     
     if start_record_ok == '':
-        # 默认从txt文件读取
-        order = read_order_from_file('temp/test_input.txt')
-        if order is None:
-            raise NameError('从文件读取指令失败，退出')
+        # 默认从txt文件读取多步指令
+        orders = read_multi_orders_from_file('temp/test_input.txt')
+        if orders is None or len(orders) == 0:
+            raise NameError('从文件读取指令失败或无有效指令，退出')
     elif str.isnumeric(start_record_ok):
         DURATION = int(start_record_ok)
         record(DURATION=DURATION)   # 录音
         order = speech_recognition() # 语音识别
+        orders = [order]  # 单条指令也放入列表
     elif start_record_ok == 'k':
         order = input('请输入指令: ')
+        orders = [order]  # 单条指令也放入列表
     elif start_record_ok == 'c':
         order = '先归零，再摇头，然后把绿色方块放在篮球上'
+        orders = [order]  # 单条指令也放入列表
     else:
         print('无指令，退出')
         raise NameError('无指令，退出')
     
-    # 智能体Agent编排动作
-    message.append({"role": "user", "content": order})
-    # eval() 是 Python 的内置函数，它可以将字符串当作 Python 代码执行。
-    agent_plan_output = eval(agent_plan(message))
+    # 循环执行每条指令
+    for idx, order in enumerate(orders, 1):
+        print(f'\n{"="*60}')
+        print(f'正在执行第 {idx}/{len(orders)} 条指令: {order}')
+        print(f'{"="*60}\n')
+        
+        # 智能体Agent编排动作
+        message.append({"role": "user", "content": order})
+        # eval() 是 Python 的内置函数，它可以将字符串当作 Python 代码执行。
+        agent_plan_output = eval(agent_plan(message))
+        
+        print('智能体编排动作如下\n', agent_plan_output)
+        # plan_ok = input('是否继续？按c继续，按q退出')
+        plan_ok = 'c'
+        if plan_ok == 'c':
+            response = agent_plan_output['response'] # 获取机器人想对我说的话
+            print('开始语音合成')
+            tts(response)                     # 语音合成，导出wav音频文件
+            play_wav('temp/tts.wav')          # 播放语音合成音频文件
+            output_other=''
+            for each in agent_plan_output['function']: # 运行智能体规划编排的每个函数
+                print('开始执行动作', each)
+                ret=eval(each)
+                if ret!=None:
+                    output_other=ret
+        elif plan_ok =='q':
+            # exit()
+            raise NameError('按q退出')
+        agent_plan_output['response']+='.'+ output_other
+        message.append({"role":"assistant","content":str(agent_plan_output)})
+        
+        print(f'\n第 {idx}/{len(orders)} 条指令执行完成\n')
     
-    print('智能体编排动作如下\n', agent_plan_output)
-    # plan_ok = input('是否继续？按c继续，按q退出')
-    plan_ok = 'c'
-    if plan_ok == 'c':
-        response = agent_plan_output['response'] # 获取机器人想对我说的话
-        print('开始语音合成')
-        tts(response)                     # 语音合成，导出wav音频文件
-        play_wav('temp/tts.wav')          # 播放语音合成音频文件
-        output_other=''
-        for each in agent_plan_output['function']: # 运行智能体规划编排的每个函数
-            print('开始执行动作', each)
-            ret=eval(each)
-            if ret!=None:
-                output_other=ret
-    elif plan_ok =='q':
-        # exit()
-        raise NameError('按q退出')
-    agent_plan_output['response']+='.'+ output_other
-    message.append({"role":"assistant","content":str(agent_plan_output)})
+    print(f'\n{"="*60}')
+    print(f'所有 {len(orders)} 条指令执行完成!')
+    print(f'{"="*60}\n')
 
 # agent_play()
 if __name__ == '__main__':

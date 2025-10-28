@@ -2,7 +2,7 @@
 # 同济子豪兄 2024-5-22
 # 大模型控制LED灯颜色
 
-from utils_llm import llm_qianfan, llm_yi,llm_360
+from utils_llm import llm_qianfan, llm_yi
 from utils_robot import mc
 
 print('导入LED灯控制模块')
@@ -25,7 +25,7 @@ def llm_led(PROMPT_LED='帮我把LED灯的颜色改为贝加尔湖的颜色'):
         try:
             # 调用大模型API（需要传递消息列表格式）
             # 使用千帆大模型（接收字符串）
-            response = llm_360(PROMPT) 
+            response = llm_qianfan(PROMPT) 
             
             # 使用零一万物大模型（接收消息列表）
             # message = [{"role": "user", "content": PROMPT}]
