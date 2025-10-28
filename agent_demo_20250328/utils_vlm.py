@@ -149,14 +149,37 @@ def QwenVL_api(PROMPT='帮我把红色方块放在钢笔上', img_path='temp/vl_
     )
 
     # 解析大模型返回结果
-    if vlm_option == 0: #定位任务
-        result = eval(completion.choices[0].message.content.strip())
-    elif vlm_option == 1: #视觉问答任务
+    if vlm_option == 0:  # 定位任务
+        content = completion.choices[0].message.content.strip()
+        print(f'    大模型原始返回: {content}')
+        
+        # 清理 Markdown 代码块标记
+        if content.startswith('```'):
+            # 移除 ```json 或 ``` 开头
+            content = content.split('\n', 1)[1] if '\n' in content else content[3:]
+        if content.endswith('```'):
+            # 移除 ``` 结尾
+            content = content.rsplit('\n', 1)[0] if '\n' in content else content[:-3]
+        content = content.strip()
+        
+        # 尝试解析 JSON
+        try:
+            result = json.loads(content)
+        except json.JSONDecodeError:
+            # 如果 json.loads 失败，尝试 eval
+            try:
+                result = eval(content)
+            except:
+                print(f'    ❌ 无法解析大模型返回内容')
+                raise
+                
+    elif vlm_option == 1:  # 视觉问答任务
         result = completion.choices[0].message.content.strip()
         print(result)
         tts(result)  # 语音合成，导出wav音频文件
-        play_wav('temp/tts.wav')  # 播放语音合成音频文件S
-    print('    大模型调用成功！')
+        play_wav('temp/tts.wav')  # 播放语音合成音频文件
+    
+    print('    Qwen VL大模型调用成功！')
 
     return result
 
