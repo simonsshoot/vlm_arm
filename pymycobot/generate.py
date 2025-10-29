@@ -198,6 +198,7 @@ class CommandGenerator(DataProcessor):
             coords: a list of coords value(List[float]).[x(mm), y, z, rx(angle), ry, rz]\n
             speed : (int) 1 ~ 100
             mode : (int) 0 - angluar, 1 - linear
+            位置坐标+姿态角
         """
         self.calibration_parameters(class_name=self.__class__.__name__, coords=coords, speed=speed)
         coord_list = []
