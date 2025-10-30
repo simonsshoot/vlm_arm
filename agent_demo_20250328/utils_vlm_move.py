@@ -154,6 +154,7 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
     ## 第三步：拍摄俯视图
     print('第三步：拍摄俯视图')
     top_view_shot(check=False)
+    time.sleep(4)
     
     ## 第四步：将图片输入给多模态视觉大模型
     print('第四步：将图片输入给多模态视觉大模型')
@@ -166,6 +167,7 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
             # result = yi_vision_api(PROMPT, img_path='temp/vl_now.jpg')  # yi_vision定位能力出现波动，暂时换用QwenVL系列
             result = QwenVL_api(PROMPT, img_path='temp/vl_now.jpg')
             print('    多模态大模型调用成功！')
+
             print(result)
             break
         except Exception as e:
@@ -175,13 +177,16 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
     ## 第五步：视觉大模型输出结果后处理和可视化
     print('第五步：视觉大模型输出结果后处理和可视化')
     START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
-    
+    list_pxy=[START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER ]
+    print(list_pxy)
     ## 第六步：手眼标定转换为机械臂坐标
     print('第六步：手眼标定，将像素坐标转换为机械臂坐标')
     # 起点，机械臂坐标
     START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
     # 终点，机械臂坐标
     END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
+    list_mxy=[START_X_MC, START_Y_MC,END_X_MC, END_Y_MC]
+    print(list_mxy)
     
     ## 第七步：吸泵吸取移动物体
     print('第七步：吸泵吸取移动物体')

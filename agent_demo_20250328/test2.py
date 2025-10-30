@@ -15,7 +15,8 @@ GPIO.output(20, 1)
 
 def test2():
   print('机械臂归零')
-  mc.send_angles([0, 0, 0, 0, 0, 0], 40)
+  # mc.send_angles([0, 0, 0, 0, 0, 0], 40)
+  mc.send_coords([52.3, -63.4, 417.9, -93.51, -0.47, -89.96],40)
   time.sleep(3)
   print('归零时的坐标：')
   print(mc.get_coords())
@@ -45,16 +46,17 @@ def test2():
       print(f'  当前关节角度: {angles}')
   else:
       print(f'  实际坐标: {actual_coords}')
-      
-      # 计算误差
-      if len(actual_coords) == 6:
-          print('\n  📊 坐标误差分析:')
-          labels = ['X(mm)', 'Y(mm)', 'Z(mm)', 'RX(°)', 'RY(°)', 'RZ(°)']
-          for i, label in enumerate(labels):
-              error = actual_coords[i] - target_coords[i]
-              print(f'    {label}: 目标={target_coords[i]:.2f}, 实际={actual_coords[i]:.2f}, 误差={error:.2f}')
+  time.sleep(2)
+  move_to_coords(99.8,-143.7)
+  actual_coords=mc.get_coords()
+  print(actual_coords)
+
+  time.sleep(2)
+  mc.send_coords([148.0, -131.0, 223.3, 177.78, 1.8, -91.72],40)
+  print(mc.get_coords())
   
   pump_off()
+  back_zero()
 
 
 def test_calibration_coords():
@@ -72,7 +74,7 @@ def test_calibration_coords():
   ]
   
   HEIGHT_SAFE = 230  # 安全高度
-  HEIGHT_LOW = 90    # 抓取高度
+  HEIGHT_LOW = 120    # 抓取高度
   
   for point in calibration_points:
       print(f'\n测试 {point["name"]}:')
@@ -132,5 +134,5 @@ def test_calibration_coords():
 
 
 if __name__ == "__main__":
-    # test2()
-    test_calibration_coords()  # 先测试标定坐标的可达性
+    test2()
+    # test_calibration_coords()  # 先测试标定坐标的可达性

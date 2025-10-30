@@ -2,7 +2,7 @@
 # 同济子豪兄 2024-5-22
 # 大模型控制LED灯颜色
 
-from utils_llm import llm_qianfan, llm_yi
+from utils_llm import llm_qianfan, llm_yi,llm_360
 from utils_robot import mc
 
 print('导入LED灯控制模块')
