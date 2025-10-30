@@ -188,12 +188,12 @@ def eye2hand(X_im=160, Y_im=120):
     # cali_2_im = [416,232]        # 第二个标定点的像素坐标
     # cali_2_mc = [150.9,-126.8]   # 第二个标定点的机械臂坐标
     # 标定点1（左上角位置）
-    cali_1_im = [130,290]        # 第一个标定点的像素坐标
-    cali_1_mc = [-21.8,-197.4]   # 第一个标定点的机械臂坐标
+    cali_2_im = [430,229]        # 第一个标定点的像素坐标
+    cali_2_mc = [26.1,-179.6]   # 第一个标定点的机械臂坐标
     
     # 标定点2（右下角位置）
-    cali_2_im = [640,0]        # 第二个标定点的像素坐标
-    cali_2_mc = [215,-59.1]   # 第二个标定点的机械臂坐标
+    cali_1_im = [426,223]        # 第二个标定点的像素坐标
+    cali_1_mc = [150.9,-126.8]   # 第二个标定点的机械臂坐标
 
     X_cali_im = [cali_1_im[0], cali_2_im[0]]     # 像素坐标 X: [416, 423]
     X_cali_mc = [cali_1_mc[0], cali_2_mc[0]]     # 机械臂坐标 X: [101.0, 148.0]
@@ -243,14 +243,20 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     # 开启吸泵
     pump_on()
     time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
+    print("current coords:")
+    print(mc.get_coords())
     
     # 吸泵向下吸取物体
     print('    吸泵向下吸取物体')
-    mc.send_coords([XY_START[0], XY_START[1], HEIGHT_START, 0, 180, 90], 15, 0)
+    print(XY_START[0])
+    print(XY_START[1])
+    mc.send_coords([XY_START[0], XY_START[1], 90, 0, 180, 90], 20, 0)
     time.sleep(4)
+    print(mc.get_coords())
     
     # 额外等待，确保物体被牢固吸住
     print('    确保物体吸附稳定...')
+    mc.send_coords([26,-179,90,0,180,90],20,0)
     time.sleep(1.5)
 
     # 升起物体
@@ -270,6 +276,9 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
 
     # 关闭吸泵
     pump_off()
+    time.sleep(1.5)  
+    print("current coords2:")
+    print(mc.get_coords())
 
     # 机械臂归零
     print('    机械臂归零')
