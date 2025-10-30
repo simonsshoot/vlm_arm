@@ -142,7 +142,9 @@ def agent_play():
         # 智能体Agent编排动作
         message.append({"role": "user", "content": order})
         # eval() 是 Python 的内置函数，它可以将字符串当作 Python 代码执行。
-        agent_plan_output = eval(agent_plan(message))
+        plan=agent_plan(message)
+        print('agent_plan返回内容:\n', plan)
+        agent_plan_output = eval(plan)
         
         print('智能体编排动作如下\n', agent_plan_output)
         # plan_ok = input('是否继续？按c继续，按q退出')
