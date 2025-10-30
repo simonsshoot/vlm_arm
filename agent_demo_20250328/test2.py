@@ -16,17 +16,18 @@ GPIO.output(20, 1)
 def test2():
   print('机械臂归零')
   mc.send_angles([0, 0, 0, 0, 0, 0], 40)
+  time.sleep(3)
   print('归零时的坐标：')
   print(mc.get_coords())
-  time.sleep(2)
   move_to_top_view()
+  time.sleep(3)
   print('移动到俯视姿态时的坐标：')
   print(mc.get_coords())
-  time.sleep(2)
   print('移动到第二个标定点的坐标：')
-  mc.send_coords([99.8, -143.7, 319.6, -142.52, -3.55, -119.09])
+  mc.send_coords([99.8, -143.7, 319.6, -142.52, -3.55, -119.09],50)
+  time.sleep(3)
   print(mc.get_coords())
-  time.sleep(2)
+  pump_off()
 
 
 if __name__ == "__main__":
