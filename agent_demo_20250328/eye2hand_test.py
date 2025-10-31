@@ -174,18 +174,19 @@ def main():
     print('开始眼手协调测试程序')
     back_zero()
     time.sleep(2)
-    print('移动到俯视姿态')
+    # print('移动到俯视姿态')
     # move_to_top_view()
-    mc.send_coords([26.1, -179.6, 199.9, 177.68, 0.18, -135.69],40)
-    time.sleep(4)
-    print(mc.get_coords())
+    # mc.send_coords([26.1, -179.6, 199.9, 177.68, 0.18, -135.69],40)
+    # move_to_coords(X=26.1,Y=-179.6,HEIGHT_SAFE=200)
+    # time.sleep(4)
+    # print(mc.get_coords())
     
     # LED变蓝是机械臂的错误指示（逆运动学无解）
     # print('移动到标定起始位置')
-    # move_to_coords(X=150, Y=-130, HEIGHT_SAFE=200)
+    move_to_coords(X=70, Y=-230, HEIGHT_SAFE=200)
     # mc.send_coords([150.9, -126.8, 199.9, 177.68, 0.18, -135.69],40)
-    # time.sleep(4)
-    # print(mc.get_coords())
+    time.sleep(4)
+    print(mc.get_coords())
     
     # 使用新的手眼标定函数
     calibration_points = eye2hand_calibration()
