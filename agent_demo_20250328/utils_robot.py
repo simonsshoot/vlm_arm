@@ -250,13 +250,14 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     print('    吸泵向下吸取物体')
     print(XY_START[0])
     print(XY_START[1])
-    mc.send_coords([XY_START[0], XY_START[1], 90, 0, 180, 90], 20, 0)
+    mc.send_coords([XY_START[0], XY_START[1], HEIGHT_END, 0, 180, 90], 20, 0)
     time.sleep(4)
     print(mc.get_coords())
     
     # 额外等待，确保物体被牢固吸住
     print('    确保物体吸附稳定...')
-    mc.send_coords([26,-179,90,0,180,90],20,0)
+    # mc.send_coords([150,-126,90,0,180,90],20,0)
+
     time.sleep(1.5)
 
     # 升起物体
