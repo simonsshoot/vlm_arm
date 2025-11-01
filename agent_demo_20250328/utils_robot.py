@@ -173,39 +173,59 @@ def print_angles():
 
 def eye2hand(X_im=160, Y_im=120):
     '''
-    输入目标点在图像中的像素坐标，转换为机械臂坐标
+    输入目标点在图像中的像素坐标，转换为机械臂坐标（多点标定版本）
     
-    标定数据：
-    点1: 像素(416, 218) -> 机械臂(101.0, -140.8)
-    点2: 像素(423, 244) -> 机械臂(148.0, -131.0)
+    使用5个标定点进行线性插值，提高精度
+    
+    标定数据（像素 -> 机械臂坐标 mm）：
+    点1: (464, 247) -> (26.1, -179.6)
+    点2: (446, 239) -> (150, -130)
+    点3: (438, 236) -> (100, -150)
+    点4: (452, 235) -> (50, -170)
+    点5: (455, 238) -> (70, -230)
     '''
-
-    # # 标定点1（左上角位置）
-    # cali_1_im = [406,228]        # 第一个标定点的像素坐标
-    # cali_1_mc = [11.1,-78.3]   # 第一个标定点的机械臂坐标
     
-    # # 标定点2（右下角位置）
-    # cali_2_im = [416,232]        # 第二个标定点的像素坐标
-    # cali_2_mc = [150.9,-126.8]   # 第二个标定点的机械臂坐标
-    # 标定点1（左上角位置）
-    cali_2_im = [430,229]        # 第一个标定点的像素坐标
-    cali_2_mc = [26.1,-179.6]   # 第一个标定点的机械臂坐标
+    # 所有标定点数据（像素坐标）
+    calibration_points_im = [
+        [464, 247],  # 点1
+        [446, 239],  # 点2
+        [438, 236],  # 点3
+        [452, 235],  # 点4
+        [455, 238],  # 点5
+    ]
     
-    # 标定点2（右下角位置）
-    cali_1_im = [426,223]        # 第二个标定点的像素坐标
-    cali_1_mc = [150.9,-126.8]   # 第二个标定点的机械臂坐标
-
-    X_cali_im = [cali_1_im[0], cali_2_im[0]]     # 像素坐标 X: [416, 423]
-    X_cali_mc = [cali_1_mc[0], cali_2_mc[0]]     # 机械臂坐标 X: [101.0, 148.0]
-    Y_cali_im = [cali_1_im[1], cali_2_im[1]]     # 像素坐标 Y: [218, 244]
-    Y_cali_mc = [cali_1_mc[1], cali_2_mc[1]]     # 机械臂坐标 Y: [-140.8, -131.0]
-
+    # 对应的机械臂坐标 (mm)
+    calibration_points_mc = [
+        [26.1, -179.6],   # 点1
+        [150, -130],      # 点2
+        [100, -150],      # 点3
+        [50, -170],       # 点4
+        [70, -230],       # 点5
+    ]
+    
+    # 分离 X 和 Y 坐标
+    X_cali_im = [pt[0] for pt in calibration_points_im]  # [464, 446, 438, 452, 455]
+    Y_cali_im = [pt[1] for pt in calibration_points_im]  # [247, 239, 236, 235, 238]
+    
+    X_cali_mc = [pt[0] for pt in calibration_points_mc]  # [26.1, 150, 100, 50, 70]
+    Y_cali_mc = [pt[1] for pt in calibration_points_mc]  # [-179.6, -130, -150, -170, -230]
+    
+    # 对 X 坐标进行排序（np.interp 要求递增）
+    X_sorted_indices = np.argsort(X_cali_im)
+    X_cali_im_sorted = [X_cali_im[i] for i in X_sorted_indices]
+    X_cali_mc_sorted = [X_cali_mc[i] for i in X_sorted_indices]
+    
+    # 对 Y 坐标进行排序
+    Y_sorted_indices = np.argsort(Y_cali_im)
+    Y_cali_im_sorted = [Y_cali_im[i] for i in Y_sorted_indices]
+    Y_cali_mc_sorted = [Y_cali_mc[i] for i in Y_sorted_indices]
+    
     # X 线性插值
-    X_mc = int(np.interp(X_im, X_cali_im, X_cali_mc))
-
+    X_mc = int(np.interp(X_im, X_cali_im_sorted, X_cali_mc_sorted))
+    
     # Y 线性插值
-    Y_mc = int(np.interp(Y_im, Y_cali_im, Y_cali_mc))
-
+    Y_mc = int(np.interp(Y_im, Y_cali_im_sorted, Y_cali_mc_sorted))
+    
     return X_mc, Y_mc
 
 # 吸泵吸取并移动物体
