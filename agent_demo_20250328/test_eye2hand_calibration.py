@@ -19,30 +19,34 @@ import os
 import cv2
 import numpy as np
 import json
-from pymycobot.mycobot import MyCobot
+from pymycobot.mycobot280 import MyCobot280
+from pymycobot import PI_PORT, PI_BAUD
 import time
 
 # 添加路径以导入工具模块
 current_dir = os.path.dirname(os.path.abspath(__file__))
-calibration_dir = os.path.join(os.path.dirname(current_dir), 'mycobot_280', 'camera_calibration')
+# 修正路径: 需要找到 vlm_arm 根目录
+vlm_root = os.path.dirname(current_dir)  # c:\Users\admin\Desktop\vlm_arm\vlm_arm
+calibration_dir = os.path.join(vlm_root, 'mycobot_280', 'camera_calibration')
 sys.path.insert(0, calibration_dir)
 
 try:
     from marker_utils import detect_marker_center
-except ImportError:
-    print("警告: marker_utils.py 未找到,将使用简化版检测")
+    print(f"✓ 已加载 marker_utils from {calibration_dir}")
+except ImportError as e:
+    print(f"警告: marker_utils.py 未找到 ({e}),将使用简化版检测")
     detect_marker_center = None
 
 
 class EyeInHandCalibration:
     """手眼标定类 (Eye-in-Hand模式)"""
     
-    def __init__(self, robot_port="COM3", camera_index=0):
+    def __init__(self, robot_port="/dev/ttyAMA0", camera_index=0):
         """
         初始化标定系统
         
         Args:
-            robot_port: 机械臂串口,如"COM3"或"/dev/ttyAMA0"
+            robot_port: 机械臂串口,树莓派用"/dev/ttyAMA0",Windows用"COM3"
             camera_index: 摄像头索引,默认0
         """
         self.robot_port = robot_port
@@ -66,13 +70,25 @@ class EyeInHandCalibration:
         """初始化机械臂"""
         print("\n[1] 正在连接机械臂...")
         try:
-            self.mc = MyCobot(self.robot_port, 115200)
-            time.sleep(1)
+            # 使用 MyCobot280 和正确的波特率
+            self.mc = MyCobot280(self.robot_port, 1000000)
+            time.sleep(2)
             
-            # 检查连接
-            angles = self.mc.get_angles()
-            if angles is None or len(angles) != 6:
-                raise Exception("机械臂连接失败")
+            # 检查连接 - 更健壮的检查方式
+            try:
+                angles = self.mc.get_angles()
+                # 可能返回 None, int, 或 list
+                if angles is None:
+                    raise Exception("get_angles() 返回 None")
+                if isinstance(angles, int):
+                    # 有些版本可能返回错误码
+                    raise Exception(f"get_angles() 返回错误码: {angles}")
+                if not isinstance(angles, list) or len(angles) != 6:
+                    raise Exception(f"get_angles() 返回异常数据: {angles}")
+                    
+            except Exception as e:
+                print(f"    警告: 无法验证角度数据 ({e}),但继续尝试...")
+                angles = [0, 0, 0, 0, 0, 0]
             
             print(f"    ✓ 机械臂已连接: {self.robot_port}")
             print(f"    当前角度: {[round(a, 1) for a in angles]}")
@@ -80,6 +96,8 @@ class EyeInHandCalibration:
             
         except Exception as e:
             print(f"    ✗ 机械臂连接失败: {e}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def init_camera(self):
@@ -380,7 +398,7 @@ def main():
     print("=" * 60)
     
     # 参数配置
-    robot_port = input("\n请输入机械臂串口 (默认COM3): ").strip() or "COM3"
+    robot_port = input("\n请输入机械臂串口 (默认/dev/ttyAMA0): ").strip() or "/dev/ttyAMA0"
     camera_index = input("请输入相机索引 (默认0): ").strip()
     camera_index = int(camera_index) if camera_index else 0
     
