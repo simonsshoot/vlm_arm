@@ -35,13 +35,22 @@ def test3():
     print(mc.get_coords())
     print("=============================")
     back_zero()
-    # mc.send_coords([26.1,-179.6,90,0,180,90],20,0)
-    # time.sleep(3)
-    # print(mc.get_coords())
+    mc.send_coords([26.1,-179.6,90,0,180,90],20,0)
+    time.sleep(3)
+    print(mc.get_coords())
     # pump_move(mc=mc,XY_START=[150,-179],XY_END=[26,-179])
     # print("2:\n")
     # time.sleep(4)
     # print(mc.get_coords())
+
+def test4():
+    back_zero()
+    x_mc,y_mc=eye2hand(446,239)
+    print(f"机械臂坐标：X={x_mc}, Y={y_mc}")
+    move_to_coords(x_mc,y_mc)
+    time.sleep(4)
+    print(mc.get_coords())
+
 
 def test2():
   print('机械臂归零')
@@ -164,5 +173,5 @@ def test_calibration_coords():
 
 
 if __name__ == "__main__":
-    test3()
+    test4()
     # test_calibration_coords()  # 先测试标定坐标的可达性

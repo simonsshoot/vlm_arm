@@ -97,6 +97,17 @@ class MyCobot280(CommandGenerator):
             baudrate : baud rate string, default '115200'
             timeout  : default 0.1
             debug    : whether show debug info
+            📡 port 参数详解
+            port 参数的含义
+            port 是串口通信端口，用于树莓派（或其他计算机）与 MyCobot280 机械臂之间的通信连接。
+
+            🔧 port 可以取哪些值？
+            在树莓派/Linux系统上
+            端口值	说明	适用情况
+            "/dev/ttyUSB0"	USB转串口设备（第1个）	通过USB连接机械臂
+            "/dev/ttyUSB1"	USB转串口设备（第2个）	插了多个USB串口设备
+            "/dev/ttyAMA0"	树莓派GPIO串口	使用树莓派GPIO引脚连接
+            "/dev/serial0"	树莓派主串口（软链接）	推荐用这个（自动指向正确的串口）
         """
         super(MyCobot280, self).__init__(debug)
         self.calibration_parameters = calibration_parameters
