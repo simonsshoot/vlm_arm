@@ -13,7 +13,7 @@ import time
 from utils_pump import *
 
 # 连接机械臂 (使用 MyCobot280 类以支持 set_fresh_mode)
-mc = MyCobot280(PI_PORT, PI_BAUD)
+mc = MyCobot280("/dev/ttyAMA0", 1000000)
 # 设置运动模式为插补
 mc.set_fresh_mode(0)
 
@@ -267,8 +267,8 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     print('    吸泵向下吸取物体')
     print(XY_START[0])
     print(XY_START[1])
-    mc.send_coords([XY_START[0], XY_START[1], 120, 0, 180, 90], 20, 0)
-    time.sleep(4)
+    mc.send_coords([XY_START[0], XY_START[1], 120, 0, 180, 90], 30, 0)
+    time.sleep(3)
     print(mc.get_coords())
     
     # 额外等待，确保物体被牢固吸住

@@ -1,6 +1,7 @@
 from pymycobot.mycobot280 import MyCobot280
 import time
 import RPi.GPIO as GPIO
+from utils_robot import *
 #输入以上代码导入工程所需要的包
 
 # MyCobot 类初始化需要两个参数：串口号和波特率
@@ -25,3 +26,11 @@ GPIO.output(21, 0)
 time.sleep(1)
 GPIO.output(21, 1)
 time.sleep(0.05)
+
+def test():
+  pump_on()
+  time.sleep(2)
+  pump_off()
+  print("==============================")
+  time.sleep(1)
+  pump_move(mc=mc,XY_START=[150,-139],XY_END=[26,-179])
