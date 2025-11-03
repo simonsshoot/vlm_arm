@@ -4,6 +4,7 @@
 
 import cv2
 import numpy as np
+from utils_robot import *
 
 # cap = cv2.VideoCapture(0)
 
@@ -35,4 +36,7 @@ def camera_check():
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
+    back_zero()
+    # move_to_top_view()
+    move_to_coords(60,-190)
     camera_check()

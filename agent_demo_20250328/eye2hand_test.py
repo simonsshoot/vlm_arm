@@ -177,7 +177,7 @@ def main():
     # print('移动到俯视姿态')
     # move_to_top_view()
     # mc.send_coords([26.1, -179.6, 199.9, 177.68, 0.18, -135.69],40)
-    move_to_coords(X=26.1,Y=-179.6,HEIGHT_SAFE=200)
+    move_to_coords(X=50,Y=-100,HEIGHT_SAFE=200)
     time.sleep(4)
     print(mc.get_coords())
     
