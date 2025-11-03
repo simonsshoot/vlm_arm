@@ -212,5 +212,157 @@ def vlm_vqa(PROMPT='请数一数图中中几个方块', input_way='keyboard'):
     GPIO.cleanup()            # 释放GPIO pin channel
     cv2.destroyAllWindows()   # 关闭所有opencv窗口
     return result
+
+def vlm_move_fast(PROMPT='帮我快速从绿色方块移到小猪佩奇', input_way='keyboard', HEIGHT=220, SPEED=80):
+    '''
+    多模态大模型识别图像，机械臂快速平移（不吸取物体）
     
+    参数:
+        PROMPT: 用户指令，例如"帮我快速从绿色方块移到小猪佩奇"
+        input_way: speech语音输入，keyboard键盘输入
+        HEIGHT: 移动高度，默认220mm
+        SPEED: 移动速度，默认80
+    '''
     
+    print('=' * 60)
+    print('多模态大模型识别图像，机械臂快速平移')
+    print('=' * 60)
+    
+    # 机械臂归零
+    print('\n[准备] 机械臂归零')
+    mc.send_angles([0, 0, 0, 0, 0, 0], 50)
+    time.sleep(3)
+    
+    ## 第一步：完成手眼标定
+    print('\n[步骤1] 手眼标定已完成')
+    
+    ## 第二步：发出指令
+    print(f'\n[步骤2] 给出的指令是：{PROMPT}')
+    
+    ## 第三步：拍摄俯视图
+    print('\n[步骤3] 拍摄俯视图')
+    top_view_shot(check=False)
+    time.sleep(4)
+    
+    ## 第四步：将图片输入给多模态视觉大模型
+    print('\n[步骤4] 将图片输入给多模态视觉大模型')
+    img_path = 'temp/vl_now.jpg'
+    
+    n = 1
+    while n < 5:
+        try:
+            print(f'    尝试第 {n} 次访问多模态大模型')
+            result = QwenVL_api(PROMPT, img_path=img_path)
+            print('    ✅ 多模态大模型调用成功！')
+            print(f'    识别结果: {result}')
+            break
+        except Exception as e:
+            print(f'    ❌ 多模态大模型返回错误: {e}')
+            if n < 4:
+                print('    等待2秒后重试...')
+                time.sleep(2)
+            n += 1
+    
+    ## 第五步：视觉大模型输出结果后处理和可视化
+    print('\n[步骤5] 视觉大模型输出结果后处理和可视化')
+    START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
+    print(f'    像素坐标: 起点({START_X_CENTER}, {START_Y_CENTER}) → 终点({END_X_CENTER}, {END_Y_CENTER})')
+    
+    ## 第六步：手眼标定转换为机械臂坐标
+    print('\n[步骤6] 手眼标定，将像素坐标转换为机械臂坐标')
+    # 起点，机械臂坐标
+    START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
+    # 终点，机械臂坐标
+    END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
+    print(f'    机械臂坐标: 起点({START_X_MC}, {START_Y_MC}) → 终点({END_X_MC}, {END_Y_MC})')
+    
+    ## 第七步：快速平移
+    print('\n[步骤7] 机械臂快速平移')
+    move_fast(START_X_MC, START_Y_MC, END_X_MC, END_Y_MC, HEIGHT=HEIGHT, SPEED=SPEED)
+    
+    ## 第八步：收尾
+    print('\n[步骤8] 任务完成')
+    print('=' * 60)
+    cv2.destroyAllWindows()   # 关闭所有opencv窗口
+
+
+def vlm_pump_drop(PROMPT='帮我把绿色方块抛到小猪佩奇上', input_way='keyboard', 
+                  HEIGHT_START=90, HEIGHT_DROP=180, HEIGHT_SAFE=220):
+    '''
+    多模态大模型识别图像，吸泵吸取物体并在空中抛下
+    
+    参数:
+        PROMPT: 用户指令，例如"帮我把绿色方块抛到小猪佩奇上"
+        input_way: speech语音输入，keyboard键盘输入
+        HEIGHT_START: 起点吸取高度，方块用90，药盒子用70
+        HEIGHT_DROP: 抛物高度（在此高度关闭气泵），默认180mm
+        HEIGHT_SAFE: 搬运安全高度，默认220mm
+    '''
+    
+    print('=' * 60)
+    print('多模态大模型识别图像，吸泵吸取并空中抛物')
+    print('=' * 60)
+    
+    # 机械臂归零
+    print('\n[准备] 机械臂归零')
+    mc.send_angles([0, 0, 0, 0, 0, 0], 50)
+    time.sleep(3)
+    
+    ## 第一步：完成手眼标定
+    print('\n[步骤1] 手眼标定已完成')
+    
+    ## 第二步：发出指令
+    print(f'\n[步骤2] 给出的指令是：{PROMPT}')
+    
+    ## 第三步：拍摄俯视图
+    print('\n[步骤3] 拍摄俯视图')
+    top_view_shot(check=False)
+    time.sleep(4)
+    
+    ## 第四步：将图片输入给多模态视觉大模型
+    print('\n[步骤4] 将图片输入给多模态视觉大模型')
+    img_path = 'temp/vl_now.jpg'
+    
+    n = 1
+    while n < 5:
+        try:
+            print(f'    尝试第 {n} 次访问多模态大模型')
+            result = QwenVL_api(PROMPT, img_path=img_path)
+            print('    ✅ 多模态大模型调用成功！')
+            print(f'    识别结果: {result}')
+            break
+        except Exception as e:
+            print(f'    ❌ 多模态大模型返回错误: {e}')
+            if n < 4:
+                print('    等待2秒后重试...')
+                time.sleep(2)
+            n += 1
+    
+    ## 第五步：视觉大模型输出结果后处理和可视化
+    print('\n[步骤5] 视觉大模型输出结果后处理和可视化')
+    START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
+    print(f'    像素坐标: 起点({START_X_CENTER}, {START_Y_CENTER}) → 终点({END_X_CENTER}, {END_Y_CENTER})')
+    
+    ## 第六步：手眼标定转换为机械臂坐标
+    print('\n[步骤6] 手眼标定，将像素坐标转换为机械臂坐标')
+    # 起点，机械臂坐标
+    START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
+    # 终点，机械臂坐标
+    END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
+    print(f'    机械臂坐标: 起点({START_X_MC}, {START_Y_MC}) → 终点({END_X_MC}, {END_Y_MC})')
+    
+    ## 第七步：吸泵吸取并空中抛物
+    print('\n[步骤7] 吸泵吸取并空中抛物')
+    pump_drop(mc=mc, 
+              XY_START=[START_X_MC, START_Y_MC], 
+              HEIGHT_START=HEIGHT_START,
+              XY_END=[END_X_MC, END_Y_MC], 
+              HEIGHT_DROP=HEIGHT_DROP,
+              HEIGHT_SAFE=HEIGHT_SAFE)
+    
+    ## 第八步：收尾
+    print('\n[步骤8] 任务完成')
+    print('=' * 60)
+    cv2.destroyAllWindows()   # 关闭所有opencv窗口
+
+

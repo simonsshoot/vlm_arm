@@ -204,18 +204,25 @@ def eye2hand(X_im=160, Y_im=120):
     #     [70, -230],       # 点5
     # ]
 
-    calibration_points_im =[
-        [395,214],
-        [408,246],
-        [406,230]
-    ]
+    # calibration_points_im =[
+    #     [395,214],
+    #     [408,246],
+    #     [406,230]
+    # ]
 
-    calibration_points_mc =[
-        [13,-160],
-        [100,-100],
-        [60,-190]
+    # calibration_points_mc =[
+    #     [13,-160],
+    #     [100,-100],
+    #     [60,-190]
+    # ]
+    calibration_points_im = [
+        [125,302],
+        [441.4,139]
     ]
-    
+    calibration_points_mc = [
+        [-16,-220],
+        [129,-145]
+    ]
     # 分离 X 和 Y 坐标
     X_cali_im = [pt[0] for pt in calibration_points_im]  # [464, 446, 438, 452, 455]
     Y_cali_im = [pt[1] for pt in calibration_points_im]  # [247, 239, 236, 235, 238]
@@ -319,3 +326,166 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     print('    机械臂归零')
     mc.send_angles([0, 0, 0, 0, 0, 0], 40)
     time.sleep(3)
+
+def move_fast(X_START, Y_START, X_END, Y_END, HEIGHT=100, SPEED=60):
+    '''
+    机械臂从一个坐标快速平移到另一个坐标
+    
+    参数:
+        X_START: 起点X坐标 (mm)
+        Y_START: 起点Y坐标 (mm)
+        X_END: 终点X坐标 (mm)
+        Y_END: 终点Y坐标 (mm)
+        HEIGHT: 移动高度，默认220mm（安全高度）
+        SPEED: 移动速度，默认80（较快）
+    '''
+    print(f'快速平移: ({X_START},{Y_START}) → ({X_END},{Y_END}), 高度={HEIGHT}mm, 速度={SPEED}')
+    
+    # 设置运动模式为插补
+    mc.set_fresh_mode(0)
+    
+    # 移动到起点
+    print(f'    移动到起点: X={X_START}, Y={Y_START}')
+    mc.send_coords([X_START, Y_START, HEIGHT, 0, 180, 90], SPEED, 0)
+    time.sleep(2)
+    
+    # 快速平移到终点
+    print(f'    快速平移到终点: X={X_END}, Y={Y_END}')
+    mc.send_coords([X_END, Y_END, HEIGHT, 0, 180, 90], SPEED, 0)
+    time.sleep(2)
+    
+    print('    ✓ 快速平移完成')
+
+def dance_aggressive():
+    '''
+    剧烈挑衅舞蹈 - 快速、大幅度、带攻击性的动作
+    '''
+    print('开始剧烈挑衅舞蹈！')
+    
+    # 准备姿态 - 低头准备
+    print('    蓄力...')
+    mc.send_angles([0, -20, 30, 0, -10, 0], 60)
+    time.sleep(0.8)
+    
+    # 第一组：快速左右摆头 + 旋转底座（挑衅）
+    print('    左右挑衅！')
+    for _ in range(3):
+        mc.send_angles([40, -30, 50, -20, 20, 60], 100)
+        time.sleep(0.4)
+        mc.send_angles([-40, -30, 50, -20, 20, -60], 100)
+        time.sleep(0.4)
+    
+    # 第二组：上下猛点头（威胁）
+    print('    上下威胁！')
+    for _ in range(2):
+        mc.send_angles([0, -80, 90, -10, 40, 0], 90)
+        time.sleep(0.5)
+        mc.send_angles([0, 10, -40, 30, -50, 0], 90)
+        time.sleep(0.5)
+    
+    # 第三组：360度快速旋转 + 大幅度挥舞（炫技）
+    print('    360度旋转炫技！')
+    mc.send_angles([0, -40, 60, -20, 30, 0], 80)
+    time.sleep(0.6)
+    mc.send_angles([90, -60, 80, -20, 50, 90], 100)
+    time.sleep(0.6)
+    mc.send_angles([180, -40, 60, -20, 30, 180], 100)
+    time.sleep(0.6)
+    mc.send_angles([270, -60, 80, -20, 50, 270], 100)
+    time.sleep(0.6)
+    mc.send_angles([360, -40, 60, -20, 30, 0], 100)
+    time.sleep(0.6)
+    
+    # 第四组：快速抖动（挑衅抖肩）
+    print('    抖肩挑衅！')
+    for _ in range(6):
+        mc.send_angles([10, -45, 70, -25, 35, 15], 120)
+        time.sleep(0.25)
+        mc.send_angles([-10, -35, 50, -15, 25, -15], 120)
+        time.sleep(0.25)
+    
+    # 第五组：终极挑衅动作 - 快速前伸后缩
+    print('    终极挑衅！')
+    for _ in range(2):
+        mc.send_angles([0, -90, 120, -30, 60, 0], 100)
+        time.sleep(0.5)
+        mc.send_angles([0, 20, -80, 60, -40, 0], 100)
+        time.sleep(0.5)
+    
+    # 结束姿态 - 傲慢停留
+    print('    胜利姿态！')
+    mc.send_angles([0, -50, 70, -20, 40, 0], 60)
+    time.sleep(1)
+    
+    # 归零
+    print('    归零')
+    mc.send_angles([0, 0, 0, 0, 0, 0], 50)
+    time.sleep(2)
+    
+    print('✓ 剧烈挑衅舞蹈完成！')
+
+def pump_drop(mc, XY_START=[150, -130], HEIGHT_START=90, XY_END=[50, -200], HEIGHT_DROP=180, HEIGHT_SAFE=220):
+    '''
+    从指定坐标吸取物品，移到另一坐标，在空中抛下（不降落直接关闭气泵）
+    
+    参数:
+        mc: 机械臂实例
+        XY_START: 起点机械臂坐标 [X, Y]
+        HEIGHT_START: 起点吸取高度，方块用90，药盒子用70
+        XY_END: 终点机械臂坐标 [X, Y]
+        HEIGHT_DROP: 抛物高度（在这个高度关闭气泵），默认180mm
+        HEIGHT_SAFE: 搬运途中安全高度，默认220mm
+    '''
+    print(f'开始抛物操作: ({XY_START[0]},{XY_START[1]}) → 空中抛至 ({XY_END[0]},{XY_END[1]})')
+    
+    # 设置运动模式为插补
+    mc.set_fresh_mode(0)
+    
+    # 1. 吸泵移动至物体上方
+    print('     移动到物体上方')
+    mc.send_coords([XY_START[0], XY_START[1], HEIGHT_SAFE, 0, 180, 90], 20, 0)
+    time.sleep(4)
+    
+    # 2. 吸泵向下吸取物体
+    print(f'   下降吸取物体 (高度={HEIGHT_START}mm)')
+    mc.send_coords([XY_START[0], XY_START[1], HEIGHT_START, 0, 180, 90], 25, 0)
+
+    print('    开启吸泵')
+    pump_on()
+    GPIO.output(21, 0)
+    time.sleep(3)
+    
+    # 额外等待，确保物体被牢固吸住
+    print('    确保物体吸附稳定...')
+    time.sleep(1.5)
+
+    # 4. 升起物体到安全高度
+    print(f'   升起物体到安全高度 ({HEIGHT_SAFE}mm)')
+    mc.send_coords([XY_START[0], XY_START[1], HEIGHT_SAFE, 0, 180, 90], 15, 0)
+    time.sleep(4)
+
+    # 5. 搬运物体至目标上方
+    print(f'   搬运至目标上方 ({XY_END[0]},{XY_END[1]})')
+    mc.send_coords([XY_END[0], XY_END[1], HEIGHT_SAFE, 0, 180, 90], 15, 0)
+    time.sleep(4)
+
+    # 6. 下降到抛物高度并立即关闭气泵（空中抛物）
+    # print(f'    下降到抛物高度 ({HEIGHT_DROP}mm) 并抛下物体！')
+    # mc.send_coords([XY_END[0], XY_END[1], HEIGHT_DROP, 0, 180, 90], 20, 0)
+    # time.sleep(2)
+    
+    # ⚠️ 关键：在空中关闭吸泵，物体自由落体
+    print('    ⚠️  空中释放物体！')
+    pump_off()
+    GPIO.output(21, 1)
+    time.sleep(1)
+    
+    print('    当前坐标:')
+    print(mc.get_coords())
+
+    # 机械臂归零
+    print('    机械臂归零')
+    mc.send_angles([0, 0, 0, 0, 0, 0], 40)
+    time.sleep(3)
+    
+    print('✓ 抛物操作完成！')
