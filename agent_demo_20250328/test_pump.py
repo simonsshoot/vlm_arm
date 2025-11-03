@@ -23,6 +23,7 @@ GPIO.output(20, 1)
 time.sleep(0.05)
 # 打开泄气阀门
 GPIO.output(21, 0)
+# 21似乎是控制是否吸气的引脚，下面的sleep决定了吸多少时间
 time.sleep(1)
 GPIO.output(21, 1)
 time.sleep(0.05)

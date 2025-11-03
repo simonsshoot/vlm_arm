@@ -22,6 +22,8 @@ def pump_on():
     '''
     print('    开启吸泵')
     GPIO.output(20, 0)
+    # new add
+    # GPIO.output(21, 0)
 
 def pump_off():
     '''
