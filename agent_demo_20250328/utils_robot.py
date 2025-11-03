@@ -242,11 +242,8 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     HEIGHT_SAFE：搬运途中安全高度
     '''
     
-    # 初始化GPIO
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(20, GPIO.OUT)
-    GPIO.setup(21, GPIO.OUT)
-
+    # GPIO已在utils_pump.py导入时初始化，无需重复初始化
+    
     # 设置运动模式为插补
     mc.set_fresh_mode(0)
     
