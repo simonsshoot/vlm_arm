@@ -45,7 +45,8 @@ def test3():
 
 def test4():
     back_zero()
-    x_mc,y_mc=eye2hand(446,239)
+    x_mc,y_mc=eye2hand(406,230)
+    time.sleep(2)
     print(f"机械臂坐标：X={x_mc}, Y={y_mc}")
     move_to_coords(x_mc,y_mc)
     time.sleep(4)

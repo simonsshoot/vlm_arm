@@ -204,25 +204,25 @@ def eye2hand(X_im=160, Y_im=120):
     #     [70, -230],       # 点5
     # ]
 
-    # calibration_points_im =[
-    #     [395,214],
-    #     [408,246],
-    #     [406,230]
-    # ]
+    calibration_points_im =[
+        [395,214],
+        [408,246],
+        [406,230]
+    ]
 
-    # calibration_points_mc =[
-    #     [13,-160],
-    #     [100,-100],
-    #     [60,-190]
+    calibration_points_mc =[
+        [13,-160],
+        [100,-100],
+        [60,-190]
+    ]
+    # calibration_points_im = [
+    #     [125,302],
+    #     [441.4,139]
     # ]
-    calibration_points_im = [
-        [125,302],
-        [441.4,139]
-    ]
-    calibration_points_mc = [
-        [-16,-220],
-        [129,-145]
-    ]
+    # calibration_points_mc = [
+    #     [-16,-220],
+    #     [129,-145]
+    # ]
     # 分离 X 和 Y 坐标
     X_cali_im = [pt[0] for pt in calibration_points_im]  # [464, 446, 438, 452, 455]
     Y_cali_im = [pt[1] for pt in calibration_points_im]  # [247, 239, 236, 235, 238]
@@ -246,8 +246,8 @@ def eye2hand(X_im=160, Y_im=120):
     # Y 线性插值
     Y_mc = int(np.interp(Y_im, Y_cali_im_sorted, Y_cali_mc_sorted))
     
-    return X_mc, Y_mc
-
+    # return X_mc, Y_mc
+    return 60,-190
 # 吸泵吸取并移动物体
 def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_END=100, HEIGHT_SAFE=220):
 
