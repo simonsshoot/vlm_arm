@@ -246,10 +246,10 @@ def eye2hand(X_im=160, Y_im=120):
     # Y 线性插值
     Y_mc = int(np.interp(Y_im, Y_cali_im_sorted, Y_cali_mc_sorted))
     
-    # return X_mc, Y_mc
-    return 60,-190
+    return X_mc, Y_mc
+    # return 60,-190
 # 吸泵吸取并移动物体
-def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_END=100, HEIGHT_SAFE=220):
+def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_END=140, HEIGHT_SAFE=220):
 
     '''
     用吸泵，将物体从起点吸取移动至终点
@@ -273,9 +273,9 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     # time.sleep(4)
     
     # 吸泵移动至物体上方
-    print('    吸泵移动至物体上方')
-    mc.send_coords([XY_START[0], XY_START[1], HEIGHT_SAFE, 0, 180, 90], 20, 0)
-    time.sleep(4)
+    # print('    吸泵移动至物体上方')
+    # mc.send_coords([XY_START[0], XY_START[1], 150, 0, 180, 90], 20, 0)
+    # time.sleep(4)
 
     # 开启吸泵
     # pump_on()
@@ -283,18 +283,22 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
     print("current coords:")
     print(mc.get_coords())
-    
+    time.sleep(2)
     # 吸泵向下吸取物体
     print('    吸泵向下吸取物体')
     print(XY_START[0])
     print(XY_START[1])
-    mc.send_coords([XY_START[0], XY_START[1], 100, 0, 180, 90], 30, 0)
+    # mc.send_coords([XY_START[0], XY_START[1], 110, 0, 180, 90], 30, 0)
+    move_to_coords(X=40,Y=-300,HEIGHT_SAFE=108)
+    time.sleep(3)
     # new add
     GPIO.output(20, 1)
     time.sleep(0.05)
     GPIO.output(21, 0)
     time.sleep(3)
     print(mc.get_coords())
+    time.sleep(2)
+    print(mc.get_angles())
     
     # 额外等待，确保物体被牢固吸住
     print('    确保物体吸附稳定...')
