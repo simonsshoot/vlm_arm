@@ -367,4 +367,96 @@ def vlm_pump_drop(PROMPT='帮我把绿色方块抛到小猪佩奇上', input_way
     print('=' * 60)
     cv2.destroyAllWindows()   # 关闭所有opencv窗口
 
+def vlm_move_gripper(PROMPT='帮我用夹爪把绿色方块放在小猪佩奇上', input_way='keyboard', HEIGHT_GRAB=90, HEIGHT_SAFE=220, HEIGHT_RELEASE=140):
+    '''
+    多模态大模型识别图像，夹爪抓取并移动物体
+    input_way：speech语音输入，keyboard键盘输入
+    '''
+    print('=' * 60)
+    print('多模态大模型识别图像，夹爪抓取并移动物体')
+    print('=' * 60)
+    
+    # 机械臂归零
+    print('\n[准备] 机械臂归零')
+    mc.send_angles([0, 0, 0, 0, 0, 0], 50)
+    time.sleep(3)
+    
+    ## 第一步：完成手眼标定
+    print('\n[步骤1] 手眼标定已完成')
+    
+    ## 第二步：发出指令
+    print(f'\n[步骤2] 给出的指令是：{PROMPT}')
+    
+    ## 第三步：拍摄俯视图
+    print('\n[步骤3] 拍摄俯视图')
+    top_view_shot(check=False)
+    time.sleep(4)
+    
+    ## 第四步：将图片输入给多模态视觉大模型
+    print('\n[步骤4] 将图片输入给多模态视觉大模型')
+    img_path = 'temp/vl_now.jpg'
+    n = 1
+    while n < 5:
+        try:
+            print(f'    尝试第 {n} 次访问多模态大模型')
+            result = QwenVL_api(PROMPT, img_path=img_path)
+            print('    ✅ 多模态大模型调用成功！')
+            print(f'    识别结果: {result}')
+            break
+        except Exception as e:
+            print(f'    ❌ 多模态大模型返回错误: {e}')
+            if n < 4:
+                print('    等待2秒后重试...')
+                time.sleep(2)
+            n += 1
+    
+    ## 第五步：视觉大模型输出结果后处理和可视化
+    print('\n[步骤5] 视觉大模型输出结果后处理和可视化')
+    START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
+    print(f'    像素坐标: 起点({START_X_CENTER}, {START_Y_CENTER}) → 终点({END_X_CENTER}, {END_Y_CENTER})')
+    
+    ## 第六步：手眼标定转换为机械臂坐标
+    print('\n[步骤6] 手眼标定，将像素坐标转换为机械臂坐标')
+    START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
+    START_X_MC,START_Y_MC=40,-300
+    END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
+    END_X_MC, END_Y_MC =13,-160
+    print(f'    机械臂坐标: 起点({START_X_MC}, {START_Y_MC}) → 终点({END_X_MC}, {END_Y_MC})')
+    
+    ## 第七步：夹爪抓取并搬运物体
+    print('\n[步骤7] 夹爪抓取并搬运物体')
+    # 1. 移动到物体上方
+    mc.send_coords([START_X_MC, START_Y_MC, HEIGHT_SAFE, 0, 180, 90], 20, 0)
+    time.sleep(3)
+    # 2. 下降到抓取高度
+    mc.send_coords([START_X_MC, START_Y_MC, HEIGHT_GRAB, 0, 180, 90], 20, 0)
+    time.sleep(2)
+    # 3. 夹爪闭合（抓取）
+    print('    闭合夹爪')
+    mc.set_gripper_state(1, 70)  # 1=闭合, 70=速度
+    time.sleep(1.5)
+    # 4. 升起物体
+    mc.send_coords([START_X_MC, START_Y_MC, HEIGHT_SAFE, 0, 180, 90], 20, 0)
+    time.sleep(3)
+    # 5. 搬运到目标上方
+    mc.send_coords([END_X_MC, END_Y_MC, HEIGHT_SAFE, 0, 180, 90], 20, 0)
+    time.sleep(3)
+    # # 6. 下降到释放高度
+    # mc.send_coords([END_X_MC, END_Y_MC, HEIGHT_RELEASE, 0, 180, 90], 20, 0)
+    # time.sleep(2)
+    # # 7. 打开夹爪（释放）
+    # print('    打开夹爪')
+    # mc.set_gripper_state(0, 70)  # 0=打开, 70=速度
+    # time.sleep(1.5)
+    # # 8. 升起夹爪
+    # mc.send_coords([END_X_MC, END_Y_MC, HEIGHT_SAFE, 0, 180, 90], 20, 0)
+    # time.sleep(2)
+    
+    # ## 第八步：收尾
+    # print('\n[步骤8] 任务完成')
+    # mc.send_angles([0, 0, 0, 0, 0, 0], 40)
+    # time.sleep(2)
+    cv2.destroyAllWindows()   # 关闭所有opencv窗口
+    print('=' * 60)
+
 
