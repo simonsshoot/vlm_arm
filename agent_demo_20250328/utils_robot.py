@@ -23,7 +23,7 @@ GPIO.setwarnings(False)   # 不打印 warning 信息
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(20, GPIO.OUT)
 GPIO.setup(21, GPIO.OUT)
-GPIO.output(20, 1)        # 关闭吸泵电磁阀
+# GPIO.output(20, 1)        # 关闭吸泵电磁阀
 
 def back_zero():
     '''
@@ -278,7 +278,8 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     time.sleep(4)
 
     # 开启吸泵
-    pump_on()
+    # pump_on()
+    GPIO.output(20, 0)
     time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
     print("current coords:")
     print(mc.get_coords())
@@ -287,8 +288,10 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     print('    吸泵向下吸取物体')
     print(XY_START[0])
     print(XY_START[1])
-    mc.send_coords([XY_START[0], XY_START[1], 120, 0, 180, 90], 30, 0)
+    mc.send_coords([XY_START[0], XY_START[1], 100, 0, 180, 90], 30, 0)
     # new add
+    GPIO.output(20, 1)
+    time.sleep(0.05)
     GPIO.output(21, 0)
     time.sleep(3)
     print(mc.get_coords())
@@ -317,7 +320,7 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     time.sleep(0.05)
 
     # 关闭吸泵
-    pump_off()
+    # pump_off()
     time.sleep(1.5)  
     print("current coords2:")
     print(mc.get_coords())
@@ -362,29 +365,21 @@ def dance_aggressive():
     '''
     print('开始剧烈挑衅舞蹈！')
     
-    # 准备姿态 - 低头准备
-    print('    蓄力...')
     mc.send_angles([0, -20, 30, 0, -10, 0], 60)
     time.sleep(0.8)
     
-    # 第一组：快速左右摆头 + 旋转底座（挑衅）
-    print('    左右挑衅！')
     for _ in range(3):
         mc.send_angles([40, -30, 50, -20, 20, 60], 100)
         time.sleep(0.4)
         mc.send_angles([-40, -30, 50, -20, 20, -60], 100)
         time.sleep(0.4)
-    
-    # 第二组：上下猛点头（威胁）
-    print('    上下威胁！')
+
     for _ in range(2):
         mc.send_angles([0, -80, 90, -10, 40, 0], 90)
         time.sleep(0.5)
         mc.send_angles([0, 10, -40, 30, -50, 0], 90)
         time.sleep(0.5)
     
-    # 第三组：360度快速旋转 + 大幅度挥舞（炫技）
-    print('    360度旋转炫技！')
     mc.send_angles([0, -40, 60, -20, 30, 0], 80)
     time.sleep(0.6)
     mc.send_angles([90, -60, 80, -20, 50, 90], 100)
@@ -396,33 +391,24 @@ def dance_aggressive():
     mc.send_angles([360, -40, 60, -20, 30, 0], 100)
     time.sleep(0.6)
     
-    # 第四组：快速抖动（挑衅抖肩）
-    print('    抖肩挑衅！')
     for _ in range(6):
         mc.send_angles([10, -45, 70, -25, 35, 15], 120)
         time.sleep(0.25)
         mc.send_angles([-10, -35, 50, -15, 25, -15], 120)
         time.sleep(0.25)
-    
-    # 第五组：终极挑衅动作 - 快速前伸后缩
-    print('    终极挑衅！')
     for _ in range(2):
         mc.send_angles([0, -90, 120, -30, 60, 0], 100)
         time.sleep(0.5)
         mc.send_angles([0, 20, -80, 60, -40, 0], 100)
         time.sleep(0.5)
     
-    # 结束姿态 - 傲慢停留
-    print('    胜利姿态！')
     mc.send_angles([0, -50, 70, -20, 40, 0], 60)
     time.sleep(1)
     
-    # 归零
-    print('    归零')
     mc.send_angles([0, 0, 0, 0, 0, 0], 50)
     time.sleep(2)
     
-    print('✓ 剧烈挑衅舞蹈完成！')
+    print('✓ 剧烈挑衅舞蹈完成！') 
 
 def pump_drop(mc, XY_START=[150, -130], HEIGHT_START=90, XY_END=[50, -200], HEIGHT_DROP=180, HEIGHT_SAFE=220):
     '''
@@ -451,7 +437,12 @@ def pump_drop(mc, XY_START=[150, -130], HEIGHT_START=90, XY_END=[50, -200], HEIG
     mc.send_coords([XY_START[0], XY_START[1], HEIGHT_START, 0, 180, 90], 25, 0)
 
     print('    开启吸泵')
-    pump_on()
+    # pump_on()
+    GPIO.output(20, 0)
+    time.sleep(2)
+    # 关吸泵
+    GPIO.output(20, 1)
+    time.sleep(0.05)
     GPIO.output(21, 0)
     time.sleep(3)
     
@@ -476,7 +467,7 @@ def pump_drop(mc, XY_START=[150, -130], HEIGHT_START=90, XY_END=[50, -200], HEIG
     
     # ⚠️ 关键：在空中关闭吸泵，物体自由落体
     print('    ⚠️  空中释放物体！')
-    pump_off()
+    # pump_off()
     GPIO.output(21, 1)
     time.sleep(1)
     
