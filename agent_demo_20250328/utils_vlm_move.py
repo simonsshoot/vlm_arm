@@ -157,35 +157,35 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
     time.sleep(4)
     
     ## 第四步：将图片输入给多模态视觉大模型
-    print('第四步：将图片输入给多模态视觉大模型')
-    img_path = 'temp/vl_now.jpg'
+    # print('第四步：将图片输入给多模态视觉大模型')
+    # img_path = 'temp/vl_now.jpg'
     
-    n = 1
-    while n < 5:
-        try:
-            print('    尝试第 {} 次访问多模态大模型'.format(n))
-            # result = yi_vision_api(PROMPT, img_path='temp/vl_now.jpg')  # yi_vision定位能力出现波动，暂时换用QwenVL系列
-            result = QwenVL_api(PROMPT, img_path='temp/vl_now.jpg')
-            print('    多模态大模型调用成功！')
+    # n = 1
+    # while n < 5:
+    #     try:
+    #         print('    尝试第 {} 次访问多模态大模型'.format(n))
+    #         # result = yi_vision_api(PROMPT, img_path='temp/vl_now.jpg')  # yi_vision定位能力出现波动，暂时换用QwenVL系列
+    #         result = QwenVL_api(PROMPT, img_path='temp/vl_now.jpg')
+    #         print('    多模态大模型调用成功！')
 
-            print(result)
-            break
-        except Exception as e:
-            print('    多模态大模型返回数据结构错误，再尝试一次', e)
-            n += 1
+    #         print(result)
+    #         break
+    #     except Exception as e:
+    #         print('    多模态大模型返回数据结构错误，再尝试一次', e)
+    #         n += 1
     
     ## 第五步：视觉大模型输出结果后处理和可视化
-    print('第五步：视觉大模型输出结果后处理和可视化')
-    START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
-    list_pxy=[START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER ]
-    print(list_pxy)
+    # print('第五步：视觉大模型输出结果后处理和可视化')
+    # START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
+    # list_pxy=[START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER ]
+    # print(list_pxy)
     ## 第六步：手眼标定转换为机械臂坐标
-    print('第六步：手眼标定，将像素坐标转换为机械臂坐标')
+    # print('第六步：手眼标定，将像素坐标转换为机械臂坐标')
     # 起点，机械臂坐标
-    START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
+    # START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
     START_X_MC,START_Y_MC=40,-300
     # 终点，机械臂坐标
-    END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
+    # END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
     END_X_MC,END_Y_MC=13,-160
     list_mxy=[START_X_MC, START_Y_MC,END_X_MC, END_Y_MC]
     print(list_mxy)
@@ -196,7 +196,7 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
     
     ## 第八步：收尾
     print('第八步：任务完成')
-    GPIO.cleanup()            # 释放GPIO pin channel
+    # GPIO.cleanup()            # 释放GPIO pin channel
     cv2.destroyAllWindows()   # 关闭所有opencv窗口
     # exit()
    

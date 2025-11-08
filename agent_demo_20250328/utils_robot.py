@@ -273,9 +273,9 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     # time.sleep(4)
     
     # 吸泵移动至物体上方
-    # print('    吸泵移动至物体上方')
-    # mc.send_coords([XY_START[0], XY_START[1], 150, 0, 180, 90], 20, 0)
-    # time.sleep(4)
+    print('    吸泵移动至物体上方')
+    mc.send_coords([XY_START[0], XY_START[1], 108, 0, 180, 90], 20, 0)
+    time.sleep(4)
 
     # 开启吸泵
     # pump_on()
@@ -289,7 +289,7 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     print(XY_START[0])
     print(XY_START[1])
     # mc.send_coords([XY_START[0], XY_START[1], 110, 0, 180, 90], 30, 0)
-    move_to_coords(X=40,Y=-300,HEIGHT_SAFE=108)
+    move_to_coords(X=40,Y=-300,HEIGHT_SAFE=98)
     time.sleep(3)
     # new add
     GPIO.output(20, 1)
@@ -317,11 +317,11 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     time.sleep(4)
 
     # 向下放下物体
-    print('    向下放下物体')
-    mc.send_coords([XY_END[0], XY_END[1], HEIGHT_END, 0, 180, 90], 20, 0)
-    time.sleep(3)
-    GPIO.output(21, 1)
-    time.sleep(0.05)
+    # print('    向下放下物体')
+    # mc.send_coords([XY_END[0], XY_END[1], HEIGHT_END, 0, 180, 90], 20, 0)
+    # time.sleep(3)
+    # GPIO.output(21, 1)
+    # time.sleep(0.05)
 
     # 关闭吸泵
     # pump_off()
@@ -331,8 +331,8 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
 
     # 机械臂归零
     print('    机械臂归零')
-    mc.send_angles([0, 0, 0, 0, 0, 0], 40)
-    time.sleep(3)
+    mc.send_angles([0, 0, 0, 0, 0, 0], 20)
+    time.sleep(1.5)
 
 def move_fast(X_START, Y_START, X_END, Y_END, HEIGHT=100, SPEED=60):
     '''
@@ -372,45 +372,46 @@ def dance_aggressive():
     mc.send_angles([0, -20, 30, 0, -10, 0], 60)
     time.sleep(0.8)
     
-    for _ in range(3):
-        mc.send_angles([40, -30, 50, -20, 20, 60], 100)
-        time.sleep(0.4)
-        mc.send_angles([-40, -30, 50, -20, 20, -60], 100)
-        time.sleep(0.4)
+    # for _ in range(3):
+        # mc.send_angles([-40, -30, 50, -20, 20, -60], 100)
+        # time.sleep(0.4)
+        # mc.send_angles([40, -30, 50, -20, 20, 60], 100)
+        # time.sleep(0.4)
 
     for _ in range(2):
-        mc.send_angles([0, -80, 90, -10, 40, 0], 90)
+        mc.send_angles([-60, 10, -40, 30, -50, 70], 70)
         time.sleep(0.5)
-        mc.send_angles([0, 10, -40, 30, -50, 0], 90)
+        mc.send_angles([-120, -80, 90, -10, 40, 80], 70)
         time.sleep(0.5)
     
-    mc.send_angles([0, -40, 60, -20, 30, 0], 80)
+    mc.send_angles([-100, -40, 60, -20, 30, 80], 80)
     time.sleep(0.6)
-    mc.send_angles([90, -60, 80, -20, 50, 90], 100)
+    mc.send_angles([-80, -60, 80, -20, -50, 90], 80)
     time.sleep(0.6)
-    mc.send_angles([180, -40, 60, -20, 30, 180], 100)
-    time.sleep(0.6)
-    mc.send_angles([270, -60, 80, -20, 50, 270], 100)
-    time.sleep(0.6)
-    mc.send_angles([360, -40, 60, -20, 30, 0], 100)
-    time.sleep(0.6)
+    # mc.send_angles([180, -40, 60, -20, 30, 180], 100)
+    # time.sleep(0.6)
+    # mc.send_angles([270, -60, 80, -20, 50, 270], 100)
+    # time.sleep(0.6)
+    # mc.send_angles([360, -40, 60, -20, 30, 0], 100)
+    # time.sleep(0.6)
     
-    for _ in range(6):
-        mc.send_angles([10, -45, 70, -25, 35, 15], 120)
+    for _ in range(3):
+        mc.send_angles([-60, -45, 70, -25, 35, -15], 60)
         time.sleep(0.25)
-        mc.send_angles([-10, -35, 50, -15, 25, -15], 120)
+        mc.send_angles([-100, -35, 50, -15, 55, -45], 60)
         time.sleep(0.25)
-    for _ in range(2):
-        mc.send_angles([0, -90, 120, -30, 60, 0], 100)
-        time.sleep(0.5)
-        mc.send_angles([0, 20, -80, 60, -40, 0], 100)
-        time.sleep(0.5)
+    # for _ in range(2):
+    #     mc.send_angles([0, -90, 120, -30, 60, 0], 100)
+    #     time.sleep(0.5)
+    #     mc.send_angles([0, 20, -80, 60, -40, 0], 100)
+    #     time.sleep(0.5)
     
-    mc.send_angles([0, -50, 70, -20, 40, 0], 60)
-    time.sleep(1)
+    # mc.send_angles([0, -50, 70, -20, 40, 0], 60)
+    # time.sleep(1)
     
     mc.send_angles([0, 0, 0, 0, 0, 0], 50)
     time.sleep(2)
+    # GPIO.cleanup() 
     
     print('✓ 剧烈挑衅舞蹈完成！') 
 
@@ -434,7 +435,7 @@ def pump_drop(mc, XY_START=[150, -130], HEIGHT_START=90, XY_END=[50, -200], HEIG
     # 1. 吸泵移动至物体上方
     print('     移动到物体上方')
     mc.send_coords([XY_START[0], XY_START[1], HEIGHT_SAFE, 0, 180, 90], 20, 0)
-    time.sleep(4)
+    time.sleep(2)
     
     # 2. 吸泵向下吸取物体
     print(f'   下降吸取物体 (高度={HEIGHT_START}mm)')
@@ -452,7 +453,7 @@ def pump_drop(mc, XY_START=[150, -130], HEIGHT_START=90, XY_END=[50, -200], HEIG
     
     # 额外等待，确保物体被牢固吸住
     print('    确保物体吸附稳定...')
-    time.sleep(1.5)
+    # time.sleep(1.5)
 
     # 4. 升起物体到安全高度
     print(f'   升起物体到安全高度 ({HEIGHT_SAFE}mm)')
