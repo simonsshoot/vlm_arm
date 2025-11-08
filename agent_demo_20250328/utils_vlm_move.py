@@ -412,8 +412,21 @@ def vlm_move_gripper(PROMPT='帮我用夹爪把绿色方块放在小猪佩奇上
     
     ## 第五步：视觉大模型输出结果后处理和可视化
     print('\n[步骤5] 视觉大模型输出结果后处理和可视化')
-    START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
-    print(f'    像素坐标: 起点({START_X_CENTER}, {START_Y_CENTER}) → 终点({END_X_CENTER}, {END_Y_CENTER})')
+    try:
+        START_X_CENTER, START_Y_CENTER, END_X_CENTER, END_Y_CENTER = post_processing_viz(result, img_path, check=True)
+        print(f'    像素坐标: 起点({START_X_CENTER}, {START_Y_CENTER}) → 终点({END_X_CENTER}, {END_Y_CENTER})')
+    except Exception as e:
+        # 防止 VLM 返回结果格式异常导致程序崩溃
+        print('    ❌ post_processing_viz 解析失败:', e)
+        print('    VLM 返回结果（截断显示，便于排查）:')
+        try:
+            import pprint
+            pprint.pprint(result)
+        except Exception:
+            print(str(result)[:1000])
+        print('    中断本次任务并清理界面，请检查 VLM 输出的数据结构或重试。')
+        cv2.destroyAllWindows()
+        return None
     
     ## 第六步：手眼标定转换为机械臂坐标
     print('\n[步骤6] 手眼标定，将像素坐标转换为机械臂坐标')
