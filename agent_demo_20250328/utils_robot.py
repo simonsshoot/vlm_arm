@@ -334,6 +334,73 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     mc.send_angles([0, 0, 0, 0, 0, 0], 20)
     time.sleep(1.5)
 
+def move_ri_le(PROMPT='',input_way='keyboard'):
+    print('机械臂归零')
+    mc.set_fresh_mode(0)
+    mc.send_angles([0, 0, 0, 0, 0, 0], 50)
+    time.sleep(2)
+
+    top_view_shot(check=False)
+    time.sleep(3)
+    GPIO.output(20, 0)
+    time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
+
+    # START_X_MC,START_Y_MC=40,-300
+    # END_X_MC,END_Y_MC=70,-160
+    # list_mxy=[START_X_MC, START_Y_MC,END_X_MC, END_Y_MC]
+    mc.send_coords([40,-300,108,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([40,-300,98,0,180,90],30,0)
+    time.sleep(1)
+    GPIO.output(20, 1)
+    time.sleep(0.05)
+    GPIO.output(21, 0)
+    time.sleep(3)
+    mc.send_coords([50,-170,108,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([50,-170,100,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(21, 1)
+    time.sleep(1.5)
+    print("=====================================")
+    mc.send_coords([70,-220,138,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 0)
+    time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
+    mc.send_coords([70,-220,132,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 1)
+    time.sleep(0.05)
+    GPIO.output(21, 0)
+    time.sleep(3)
+    mc.send_coords([50,-200,138,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([50,-200,130,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(21, 1)
+    print("=====================================")
+    time.sleep(1.5)
+    mc.send_coords([50,-170,108,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 0)
+    time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
+    mc.send_coords([50,-170,100,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 1)
+    time.sleep(0.05)
+    GPIO.output(21, 0)
+    time.sleep(3)
+    mc.send_coords([40,-300,108,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([40,-300,98,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(21, 1)
+    time.sleep(1.5)
+    print("done!")
+
+
+
+
 def move_fast(X_START, Y_START, X_END, Y_END, HEIGHT=100, SPEED=60):
     '''
     机械臂从一个坐标快速平移到另一个坐标

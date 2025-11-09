@@ -17,6 +17,71 @@ GPIO.setup(20, GPIO.OUT)
 GPIO.setup(21, GPIO.OUT)
 GPIO.output(20, 1)   
 
+def move_ri_le():
+    print('机械臂归零')
+    mc.set_fresh_mode(0)
+    mc.send_angles([0, 0, 0, 0, 0, 0], 50)
+    time.sleep(2)
+
+    top_view_shot(check=False)
+    time.sleep(3)
+    GPIO.output(20, 0)
+    time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
+
+    # START_X_MC,START_Y_MC=40,-300
+    # END_X_MC,END_Y_MC=70,-160
+    # list_mxy=[START_X_MC, START_Y_MC,END_X_MC, END_Y_MC]
+    mc.send_coords([40,-300,108,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([40,-300,98,0,180,90],30,0)
+    time.sleep(1)
+    GPIO.output(20, 1)
+    time.sleep(0.05)
+    GPIO.output(21, 0)
+    time.sleep(3)
+    mc.send_coords([50,-170,108,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([50,-170,100,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(21, 1)
+    time.sleep(1.5)
+    print("=====================================")
+    mc.send_coords([70,-220,138,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 0)
+    time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
+    mc.send_coords([70,-220,132,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 1)
+    time.sleep(0.05)
+    GPIO.output(21, 0)
+    time.sleep(3)
+    mc.send_coords([50,-200,138,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([50,-200,130,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(21, 1)
+    print("=====================================")
+    time.sleep(1.5)
+    mc.send_coords([50,-170,108,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 0)
+    time.sleep(1.5)  # 增加等待时间，确保吸力充分建立
+    mc.send_coords([50,-170,100,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(20, 1)
+    time.sleep(0.05)
+    GPIO.output(21, 0)
+    time.sleep(3)
+    mc.send_coords([40,-300,108,0,180,90],30,0)
+    time.sleep(2)
+    mc.send_coords([40,-300,98,0,180,90],30,0)
+    time.sleep(2)
+    GPIO.output(21, 1)
+    time.sleep(1.5)
+    print("done!")
+
+
 def eye2hand_calibration():
     """
     手眼标定函数：实时显示摄像头画面，同时可以控制机械臂移动
@@ -177,9 +242,10 @@ def main():
     # print('移动到俯视姿态')
     # move_to_top_view()
     # mc.send_coords([26.1, -179.6, 199.9, 177.68, 0.18, -135.69],40)
-    move_to_coords(X=20,Y=-250,HEIGHT_SAFE=138)
-    time.sleep(4)
-    print(mc.get_coords())
+    # move_to_coords(X=20,Y=-250,HEIGHT_SAFE=138)
+    # time.sleep(4)
+    # print(mc.get_coords())
+    move_ri_le()
     
     # LED变蓝是机械臂的错误指示（逆运动学无解）
     # print('移动到标定起始位置')
