@@ -274,7 +274,7 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     
     # 吸泵移动至物体上方
     print('    吸泵移动至物体上方')
-    mc.send_coords([XY_START[0], XY_START[1], 138, 0, 180, 90], 20, 0)
+    mc.send_coords([XY_START[0], XY_START[1], 108, 0, 180, 90], 20, 0)
     time.sleep(4)
 
     # 开启吸泵
@@ -289,7 +289,7 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     print(XY_START[0])
     print(XY_START[1])
     # mc.send_coords([XY_START[0], XY_START[1], 110, 0, 180, 90], 30, 0)
-    move_to_coords(X=20,Y=-250,HEIGHT_SAFE=132)
+    move_to_coords(X=40,Y=-300,HEIGHT_SAFE=98)
     time.sleep(3)
     # new add
     GPIO.output(20, 1)
@@ -314,13 +314,13 @@ def pump_move(mc, XY_START=[230,-50], HEIGHT_START=90, XY_END=[100,220], HEIGHT_
     # 搬运物体至目标上方
     print('    搬运物体至目标上方')
     mc.send_coords([XY_END[0], XY_END[1], HEIGHT_SAFE, 0, 180, 90], 15, 0)
-    time.sleep(3)
+    time.sleep(4)
 
     # 向下放下物体
     # print('    向下放下物体')
     # mc.send_coords([XY_END[0], XY_END[1], HEIGHT_END, 0, 180, 90], 20, 0)
     # time.sleep(3)
-    GPIO.output(21, 1)
+    # GPIO.output(21, 1)
     # time.sleep(0.05)
 
     # 关闭吸泵

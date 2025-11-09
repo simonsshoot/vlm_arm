@@ -183,7 +183,7 @@ def vlm_move(PROMPT='帮我把绿色方块放在小猪佩奇上', input_way='key
     # print('第六步：手眼标定，将像素坐标转换为机械臂坐标')
     # 起点，机械臂坐标
     # START_X_MC, START_Y_MC = eye2hand(START_X_CENTER, START_Y_CENTER)
-    START_X_MC,START_Y_MC=20,-250
+    START_X_MC,START_Y_MC=40,-300
     # 终点，机械臂坐标
     # END_X_MC, END_Y_MC = eye2hand(END_X_CENTER, END_Y_CENTER)
     END_X_MC,END_Y_MC=13,-160
